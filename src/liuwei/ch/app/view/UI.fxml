@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="liuwei.ch.app.view.UIControl">
+   <center>
+      <ImageView fx:id="ImageView" fitHeight="300.0" fitWidth="350.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" />
+   </center>
+   <right>
+      <TitledPane animated="false" prefHeight="404.0" prefWidth="202.0" text="Color Range" BorderPane.alignment="CENTER">
+        <content>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <Slider fx:id="H_MIN" blockIncrement="1.0" layoutX="14.0" layoutY="41.0" max="255.0" onKeyPressed="#setH_MIN" onMouseDragged="#setH_MIN" onMousePressed="#setH_MIN" />
+                  <Slider fx:id="H_MAX" blockIncrement="1.0" layoutX="14.0" layoutY="96.0" max="255.0" onKeyPressed="#setH_MAX" onMouseDragged="#setH_MAX" onMousePressed="#setH_MAX" />
+                  <Slider fx:id="S_MIN" blockIncrement="1.0" layoutX="14.0" layoutY="154.0" max="255.0" onKeyPressed="#setS_MIN" onMouseDragged="#setS_MIN" onMousePressed="#setS_MIN" />
+                  <Slider fx:id="S_MAX" blockIncrement="1.0" layoutX="14.0" layoutY="212.0" max="255.0" onKeyPressed="#setS_MAX" onMouseDragged="#setS_MAX" onMousePressed="#setS_MAX" />
+                  <Slider fx:id="V_MIN" blockIncrement="1.0" layoutX="14.0" layoutY="272.0" max="255.0" onKeyPressed="#setV_MIN" onMouseDragged="#setV_MIN" onMousePressed="#setV_MIN" />
+                  <Slider fx:id="V_MAX" blockIncrement="1.0" layoutX="14.0" layoutY="326.0" max="255.0" onKeyPressed="#setV_MAX" onMouseDragged="#setV_MAX" onMousePressed="#setV_MAX" />
+                  <Label layoutX="12.0" layoutY="20.0" prefHeight="15.0" prefWidth="47.0" text="H_MIN:" />
+                  <Label layoutX="13.0" layoutY="74.0" text="H_MAX:" />
+                  <Label layoutX="15.0" layoutY="130.0" text="S_MIN:" />
+                  <Label layoutX="14.0" layoutY="189.0" text="S_MAX:" />
+                  <Label layoutX="14.0" layoutY="248.0" text="V_MIN:" />
+                  <Label layoutX="14.0" layoutY="305.0" text="V_MAX:" />
+               </children>
+            </AnchorPane>
+        </content>
+      </TitledPane>
+   </right>
+   <bottom>
+      <Button fx:id="play" mnemonicParsing="false" onAction="#startOrStopCamera" prefHeight="17.0" prefWidth="163.0" text="START" BorderPane.alignment="CENTER">
+         <BorderPane.margin>
+            <Insets bottom="5.0" right="200.0" top="-30.0" />
+         </BorderPane.margin>
+      </Button>
+   </bottom>
+</BorderPane>
