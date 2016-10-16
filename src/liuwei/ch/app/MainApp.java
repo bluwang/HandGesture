@@ -1,12 +1,19 @@
 package liuwei.ch.app;
 
+import java.io.File;
 import java.io.IOException;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
+
+import org.opencv.core.Core;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import liuwei.ch.app.model.HSVData;
 import liuwei.ch.app.view.InitialControl;
 import liuwei.ch.app.view.RootLayoutControl;
 
@@ -14,7 +21,13 @@ public class MainApp extends Application {
 	
 	private Stage stage;
 	private BorderPane rootLayout;
-	
+
+	public static void main(String[] args) {
+		//加载openCV中的这个文件（后面的很多都要用的，先加载）
+		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+		launch(args);
+	}	
+
 	@Override
 	public void start(Stage primaryStage) throws IOException {
 		primaryStage.setTitle("Hand Gesture Control");
@@ -75,8 +88,6 @@ public class MainApp extends Application {
 			e.printStackTrace();
 		}	
 	}
-
-	public static void main(String[] args) {
-		launch(args);
-	}
+	
+	
 }

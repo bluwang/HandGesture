@@ -5,7 +5,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import liuwei.ch.app.MainApp;
-import liuwei.ch.app.model.Hand;
+import liuwei.ch.app.model.Detect;
 
 public class InitialControl {
 	
@@ -18,14 +18,14 @@ public class InitialControl {
     private MainApp mainApp;
     
     //手势识别控制
-    Hand hand;
+    Detect hand;
    
     /**
      * The constructor.
      * The constructor is called before the initialize() method.
      */
     public InitialControl() {
-    	hand = new Hand();
+    	hand = new Detect();
     }
 
     /**

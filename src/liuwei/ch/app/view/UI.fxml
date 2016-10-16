@@ -11,33 +11,101 @@
    <center>
       <ImageView fx:id="ImageView" fitHeight="300.0" fitWidth="350.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" />
    </center>
-   <right>
-      <TitledPane animated="false" prefHeight="404.0" prefWidth="202.0" text="Color Range" BorderPane.alignment="CENTER">
-        <content>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-               <children>
-                  <Slider fx:id="H_MIN" blockIncrement="1.0" layoutX="14.0" layoutY="41.0" max="255.0" onKeyPressed="#setH_MIN" onMouseDragged="#setH_MIN" onMousePressed="#setH_MIN" />
-                  <Slider fx:id="H_MAX" blockIncrement="1.0" layoutX="14.0" layoutY="96.0" max="255.0" onKeyPressed="#setH_MAX" onMouseDragged="#setH_MAX" onMousePressed="#setH_MAX" />
-                  <Slider fx:id="S_MIN" blockIncrement="1.0" layoutX="14.0" layoutY="154.0" max="255.0" onKeyPressed="#setS_MIN" onMouseDragged="#setS_MIN" onMousePressed="#setS_MIN" />
-                  <Slider fx:id="S_MAX" blockIncrement="1.0" layoutX="14.0" layoutY="212.0" max="255.0" onKeyPressed="#setS_MAX" onMouseDragged="#setS_MAX" onMousePressed="#setS_MAX" />
-                  <Slider fx:id="V_MIN" blockIncrement="1.0" layoutX="14.0" layoutY="272.0" max="255.0" onKeyPressed="#setV_MIN" onMouseDragged="#setV_MIN" onMousePressed="#setV_MIN" />
-                  <Slider fx:id="V_MAX" blockIncrement="1.0" layoutX="14.0" layoutY="326.0" max="255.0" onKeyPressed="#setV_MAX" onMouseDragged="#setV_MAX" onMousePressed="#setV_MAX" />
-                  <Label layoutX="12.0" layoutY="20.0" prefHeight="15.0" prefWidth="47.0" text="H_MIN:" />
-                  <Label layoutX="13.0" layoutY="74.0" text="H_MAX:" />
-                  <Label layoutX="15.0" layoutY="130.0" text="S_MIN:" />
-                  <Label layoutX="14.0" layoutY="189.0" text="S_MAX:" />
-                  <Label layoutX="14.0" layoutY="248.0" text="V_MIN:" />
-                  <Label layoutX="14.0" layoutY="305.0" text="V_MAX:" />
-               </children>
-            </AnchorPane>
-        </content>
-      </TitledPane>
-   </right>
    <bottom>
-      <Button fx:id="play" mnemonicParsing="false" onAction="#startOrStopCamera" prefHeight="17.0" prefWidth="163.0" text="START" BorderPane.alignment="CENTER">
-         <BorderPane.margin>
-            <Insets bottom="5.0" right="200.0" top="-30.0" />
-         </BorderPane.margin>
-      </Button>
+      <Pane>
+         <children>
+            <Button fx:id="play" mnemonicParsing="false" onAction="#startOrStopCamera" prefHeight="17.0" prefWidth="163.0" text="START" BorderPane.alignment="CENTER">
+               <BorderPane.margin>
+                  <Insets bottom="5.0" right="200.0" top="-30.0" />
+               </BorderPane.margin>
+            </Button>
+            <ChoiceBox fx:id="sceneChoose" layoutX="225.0" onMousePressed="#loadScene" prefWidth="150.0" />
+            <Label layoutX="169.0" layoutY="4.0" prefHeight="15.0" prefWidth="85.0" text="场景选择：" />
+            <Button layoutX="399.0" mnemonicParsing="false" onAction="#setScene" prefHeight="23.0" prefWidth="201.0" text="设置为当前选择场景" />
+         </children>
+      </Pane>
    </bottom>
+   <right>
+      <Accordion BorderPane.alignment="CENTER">
+        <panes>
+            <TitledPane animated="false" prefHeight="404.0" prefWidth="202.0" text="颜色选取范围设置">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="332.0" prefWidth="176.0">
+                     <children>
+                        <Slider fx:id="H_MIN1" blockIncrement="1.0" layoutX="53.0" layoutY="2.0" max="255.0" onKeyPressed="#setH_MIN1" onMouseDragged="#setH_MIN1" onMousePressed="#setH_MIN1" />
+                        <Slider fx:id="H_MAX1" blockIncrement="1.0" layoutX="53.0" layoutY="26.0" max="255.0" onKeyPressed="#setH_MAX1" onMouseDragged="#setH_MAX1" onMousePressed="#setH_MAX1" />
+                        <Slider fx:id="S_MIN1" blockIncrement="1.0" layoutX="53.0" layoutY="47.0" max="255.0" onKeyPressed="#setS_MIN1" onMouseDragged="#setS_MIN1" onMousePressed="#setS_MIN1" />
+                        <Slider fx:id="S_MAX1" blockIncrement="1.0" layoutX="53.0" layoutY="70.0" max="255.0" onKeyPressed="#setS_MAX1" onMouseDragged="#setS_MAX1" onMousePressed="#setS_MAX1" />
+                        <Slider fx:id="V_MIN1" blockIncrement="1.0" layoutX="53.0" layoutY="92.0" max="255.0" onKeyPressed="#setV_MIN1" onMouseDragged="#setV_MIN1" onMousePressed="#setV_MIN1" />
+                        <Slider fx:id="V_MAX1" blockIncrement="1.0" layoutX="53.0" layoutY="114.0" max="255.0" onKeyPressed="#setV_MAX1" onMouseDragged="#setV_MAX1" onMousePressed="#setV_MAX1" />
+                        <Label layoutY="1.0" prefHeight="15.0" prefWidth="54.0" text="H_MIN1:" />
+                        <Label layoutX="1.0" layoutY="25.0" text="H_MAX1:" />
+                        <Label layoutX="4.0" layoutY="46.0" text="S_MIN1:" />
+                        <Label layoutX="2.0" layoutY="69.0" text="S_MAX1:" />
+                        <Label layoutX="3.0" layoutY="91.0" text="V_MIN1:" />
+                        <Label layoutX="2.0" layoutY="113.0" text="V_MAX1:" />
+                        <Button layoutX="-1.0" layoutY="264.0" mnemonicParsing="false" onAction="#saveScene" prefHeight="17.0" prefWidth="202.0" text="保存为场景" />
+                        <Label layoutX="3.0" layoutY="134.0" text="H_MIN2:" />
+                        <Label layoutX="2.0" layoutY="159.0" text="H_MAX2:" />
+                        <Label layoutX="1.0" layoutY="181.0" text="S_MIN2:" />
+                        <Label layoutX="2.0" layoutY="204.0" text="S_MAX2:" />
+                        <Label layoutX="3.0" layoutY="227.0" text="V_MIN2:" />
+                        <Label layoutX="1.0" layoutY="248.0" text="V_MAX2:" />
+                        <Slider fx:id="H_MIN2" layoutX="53.0" layoutY="134.0" onKeyPressed="#setH_MIN2" onMouseDragged="#setH_MIN2" onMousePressed="#setH_MIN2" />
+                        <Slider fx:id="H_MAX2" layoutX="53.0" layoutY="159.0" onKeyPressed="#setH_MAX2" onMouseDragged="#setH_MAX2" onMousePressed="#setH_MAX2" />
+                        <Slider fx:id="S_MIN2" layoutX="53.0" layoutY="181.0" onKeyPressed="#setS_MIN2" onMouseDragged="#setS_MIN2" onMousePressed="#setS_MIN2" />
+                        <Slider fx:id="S_MAX2" layoutX="53.0" layoutY="204.0" onKeyPressed="#setS_MAX2" onMouseDragged="#setS_MAX2" onMousePressed="#setS_MAX2" />
+                        <Slider fx:id="V_MIN2" layoutX="53.0" layoutY="227.0" onKeyPressed="#setV_MIN2" onMouseDragged="#setV_MIN2" onMousePressed="#setV_MIN2" />
+                        <Slider fx:id="V_MAX2" layoutX="53.0" layoutY="248.0" onKeyPressed="#setV_MAX2" onMouseDragged="#setV_MAX2" onMousePressed="#setV_MAX2" />
+                     </children>
+                  </AnchorPane>
+              </content>
+            </TitledPane>
+          <TitledPane animated="false" text="快速颜色选取范围设置">
+               <content>
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <Label layoutX="16.0" layoutY="14.0" text="V:" />
+                        <Label layoutX="16.0" layoutY="96.0" text="H:" />
+                        <Label layoutX="16.0" layoutY="55.0" text="S:" />
+                        <Slider layoutX="14.0" layoutY="29.0" />
+                        <Slider layoutX="14.0" layoutY="70.0" />
+                        <Slider layoutX="14.0" layoutY="111.0" />
+                        <Button layoutX="14.0" layoutY="154.0" mnemonicParsing="false" text="保存为场景" />
+                     </children>
+                  </AnchorPane>
+               </content>
+            </TitledPane>
+          <TitledPane animated="false" text="untitled 2" />
+        </panes>
+      </Accordion>
+   </right>
+   <top>
+      <MenuBar BorderPane.alignment="CENTER">
+        <menus>
+          <Menu mnemonicParsing="false" text="文件">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Close" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="编辑">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Delete" />
+            </items>
+          </Menu>
+            <Menu mnemonicParsing="false" text="场景">
+              <items>
+                <MenuItem mnemonicParsing="false" text="保存场景" />
+                  <MenuItem mnemonicParsing="false" text="删除场景" />
+                  <MenuItem mnemonicParsing="false" onAction="#clearScenes" text="删除所有场景" />
+              </items>
+            </Menu>
+          <Menu mnemonicParsing="false" text="帮助">
+            <items>
+              <MenuItem mnemonicParsing="false" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </top>
 </BorderPane>

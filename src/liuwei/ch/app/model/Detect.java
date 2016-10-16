@@ -7,24 +7,26 @@ import java.util.List;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.objdetect.CascadeClassifier;
 import org.opencv.video.BackgroundSubtractor;
-import org.opencv.video.BackgroundSubtractorKNN;
+import org.opencv.video.BackgroundSubtractorMOG;
 import org.opencv.video.BackgroundSubtractorMOG2;
 import org.opencv.video.Video;
-import org.opencv.videoio.VideoCapture;
-
 import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import liuwei.ch.app.util.MyTool;
 
-public class Hand {
+public class Detect {
 	
+	private FaceDetect faceDetect;
 	private HandDetect handDetect;
 	
 	private VideoCapture capture;
@@ -32,18 +34,26 @@ public class Hand {
 	private Mat currentFrame;
 	private Mat bSMat;
 	private BackgroundSubtractor subtractor;
-	private BackgroundSubtractorKNN KNN;
 	private BackgroundSubtractorMOG2 MOG2;
+	private BackgroundSubtractorMOG MOG;
 	private boolean isFirstFrame;
 	private boolean cameraActive;
 	private Image currentImage;
 	private int width = 400;
 	private int height = 400;
+	private CascadeClassifier faceDetector;
+	private MatOfRect faceDetections;
 	// Set video device
 	private static int videodevice = 0;
 	
-	public Hand() {
+	public Detect() {
+		faceDetect = new FaceDetect();
 		handDetect = new HandDetect();
+//		faceDetector = new CascadeClassifier("C:/Program Files/openCV/openCV2.4.9/opencv/sources/data/lbpcascades/lbpcascade_frontalface.xml");
+//		faceDetector = new CascadeClassifier("C:/Program Files/openCV/openCV-2.4.13/opencv/sources/data/lbpcascades/lbpcascade_frontalcatface.xml");
+		faceDetector = new CascadeClassifier("C:/Program Files/openCV/openCV-2.4.13/opencv/sources/data/lbpcascades/lbpcascade_frontalface.xml");
+//		faceDetector = new CascadeClassifier("C:/Program Files/openCV/openCV-2.4.13/opencv/sources/data/lbpcascades/lbpcascade_profileface.xml");
+//		faceDetector = new CascadeClassifier("C:/Program Files/openCV/openCV-2.4.13/opencv/sources/data/lbpcascades/lbpcascade_silverware.xml");
 		isFirstFrame = true;
 		cameraActive = false;
 	}
@@ -60,8 +70,8 @@ public class Hand {
 					backgroundFrame = new Mat();
 					currentFrame = new Mat();
 					bSMat = new Mat();
-					KNN = Video.createBackgroundSubtractorKNN();
-					KNN.setDetectShadows(true);
+					MOG = new BackgroundSubtractorMOG();
+					MOG2 = new BackgroundSubtractorMOG2();
 					Thread processFrame = new Thread(new Runnable() {
 						
 						@Override
@@ -69,11 +79,40 @@ public class Hand {
 							// TODO Auto-generated method stub
 							while (cameraActive) {
 								capture.read(currentFrame);
-								Core.flip(currentFrame, currentFrame, 1);
-								Imgproc.resize(currentFrame, currentFrame, new Size(imageView.getFitWidth(), imageView.getFitHeight()));
-								Imgproc.blur(currentFrame, currentFrame, new Size(2, 2));
-								bSMat = handDetect.detect(currentFrame);
+//								Imgproc.blur(currentFrame, currentFrame, new Size(3, 3));
+
+								//»À¡≥ºÏ≤‚
+//								faceDetect(currentFrame);
 								
+								//—’…´∆•≈‰ºÏ≤‚
+//								bSMat = handDetect.detect(currentFrame);
+								
+								//‘À∂ØºÏ≤‚
+//								MOG.apply(currentFrame, bSMat);
+//								MOG2.apply(currentFrame, bSMat);
+								bSMat = handDetect.sub(currentFrame);
+
+								Core.flip(currentFrame, currentFrame, 1);
+								Core.flip(bSMat, bSMat, 1);
+								Imgproc.resize(currentFrame, currentFrame, new Size(350, 300));
+								Imgproc.resize(bSMat, bSMat, new Size(350, 300));
+								
+								//ª≠¬÷¿™
+//								List<MatOfPoint> contours = new ArrayList<MatOfPoint>();   
+//								Imgproc.threshold(bSMat, bSMat, 100, 255, Imgproc.THRESH_BINARY);
+//								Imgproc.findContours(bSMat, contours, new Mat(), Imgproc.RETR_LIST,Imgproc.CHAIN_APPROX_SIMPLE);
+//								if (contours.size() > 0) {
+//									Rect r = Imgproc.boundingRect(contours.get(0));
+//									for (int i = 1; i < contours.size(); i++) {
+////										if (r.area() < Imgproc.boundingRect(contours.get(i)).area()) {
+////											r = Imgproc.boundingRect(contours.get(i));
+////										}
+//										r = Imgproc.boundingRect(contours.get(i));
+//										Core.rectangle(bSMat, r.tl(), r.br(), new Scalar(255, 0, 0, 255), 3);
+//									}
+////									Imgproc.rectangle(bSMat, r.tl(), r.br(), new Scalar(255, 0, 0, 255), 3);
+//								}
+
 //								if (isFirstFrame) {
 //									currentFrame.copyTo(backgroundFrame);
 //									isFirstFrame = false;
@@ -170,6 +209,21 @@ public class Hand {
 				capture.release();
 			}
 		}
+	}
+	
+	public void faceDetect(Mat frame) {
+        faceDetections = new MatOfRect();
+        faceDetector.detectMultiScale(frame, faceDetections);
+
+        System.out.println(String.format("Detected %s faces",
+                        faceDetections.toArray().length));
+        for (Rect rect : faceDetections.toArray()) {
+                Core.rectangle(frame, new Point(rect.x, rect.y), new Point(rect.x
+                                + rect.width, rect.y + rect.height), new Scalar(0, 255, 0));
+        }
+
+        String filename = "./Result/FaceDetect.png";
+        System.out.println(String.format("Writing %s", filename));
 	}
 
 }
