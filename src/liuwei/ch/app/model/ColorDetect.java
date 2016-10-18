@@ -7,10 +7,13 @@ import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
-public class HandDetect {
+import liuwei.ch.app.util.MyTool;
+
+public class ColorDetect {
 	
 	private static int H_MIN1 = 0; 
 	private static int H_MAX1 = 40; 
@@ -25,19 +28,21 @@ public class HandDetect {
 	private static int V_MIN2 = 30; 
 	private static int V_MAX2 = 256; 
 	
-	private boolean isFirstMat;
 	private Mat backgroundMat;
 	private Mat resultMat;
-	private int no;
 
-	public HandDetect() {
+	private boolean isFirstMat;
+	private int no;
+	private List<Rect> rects;
+
+	public ColorDetect() {
 		isFirstMat = true;
 		backgroundMat = new Mat();
 		resultMat = new Mat();
 		no = 1;
 	}
 	
-	public Mat detect(Mat inputMat) {
+	public List<Rect> detect(Mat inputMat) {
 		Mat mat1 = new Mat();
 		Mat mat2 = new Mat();
 		Mat resultMat = new Mat();
@@ -48,7 +53,9 @@ public class HandDetect {
 		Core.inRange(resultMat, new Scalar(H_MIN2, S_MIN2, V_MIN2), new Scalar(H_MAX2, S_MAX2, V_MAX2), mat2);
 		Core.bitwise_or(mat1, mat2, resultMat);
 		
-		return resultMat;
+		rects = MyTool.getContours(resultMat);
+		
+		return rects;
 	}
 	
 	public Mat sub(Mat inputMat) {
@@ -61,6 +68,8 @@ public class HandDetect {
 			isFirstMat = false;
 		}
 		else {
+			Imgproc.cvtColor(inputMat, inputMat, Imgproc.COLOR_BGR2GRAY);
+			Imgproc.cvtColor(backgroundMat, backgroundMat, Imgproc.COLOR_BGR2GRAY);
 			Core.subtract(inputMat, backgroundMat, resultMat);
 			Core.bitwise_not(resultMat, resultMat);
 		}

@@ -18,7 +18,7 @@ import javafx.scene.image.ImageView;
 import liuwei.ch.app.model.Detect;
 import liuwei.ch.app.model.HSVData;
 import liuwei.ch.app.model.HSVDataWrapper;
-import liuwei.ch.app.model.HandDetect;
+import liuwei.ch.app.model.ColorDetect;
 
 public class UIControl {
 	
@@ -68,18 +68,18 @@ public class UIControl {
 	}
 
 	private void init() {
-H_MIN1.setValue((double) HandDetect.getH_MIN1());
-		H_MIN2.setValue((double) HandDetect.getH_MIN2());
-		H_MAX1.setValue((double) HandDetect.getH_MAX1());
-		H_MAX2.setValue((double) HandDetect.getH_MAX2());
-		S_MIN1.setValue((double) HandDetect.getS_MIN1());
-		S_MIN2.setValue((double) HandDetect.getS_MIN2());
-		S_MAX1.setValue((double) HandDetect.getS_MAX1());
-		S_MAX2.setValue((double) HandDetect.getS_MAX2());
-		V_MIN1.setValue((double) HandDetect.getV_MIN1());
-		V_MIN2.setValue((double) HandDetect.getV_MIN2());
-		V_MAX1.setValue((double) HandDetect.getV_MAX1());
-		V_MAX2.setValue((double) HandDetect.getV_MAX2());
+H_MIN1.setValue((double) ColorDetect.getH_MIN1());
+		H_MIN2.setValue((double) ColorDetect.getH_MIN2());
+		H_MAX1.setValue((double) ColorDetect.getH_MAX1());
+		H_MAX2.setValue((double) ColorDetect.getH_MAX2());
+		S_MIN1.setValue((double) ColorDetect.getS_MIN1());
+		S_MIN2.setValue((double) ColorDetect.getS_MIN2());
+		S_MAX1.setValue((double) ColorDetect.getS_MAX1());
+		S_MAX2.setValue((double) ColorDetect.getS_MAX2());
+		V_MIN1.setValue((double) ColorDetect.getV_MIN1());
+		V_MIN2.setValue((double) ColorDetect.getV_MIN2());
+		V_MAX1.setValue((double) ColorDetect.getV_MAX1());
+		V_MAX2.setValue((double) ColorDetect.getV_MAX2());
 	}
 
 	@FXML
@@ -135,12 +135,12 @@ H_MIN1.setValue((double) HandDetect.getH_MIN1());
 		
 		String sceneName = sceneChoose.getValue().toString();
 		HSVData sceneData = hsvDataWrapper.getHSVData(sceneName);
-		HandDetect.setH_MIN1(sceneData.getHSV()[0]);
-		HandDetect.setH_MAX1(sceneData.getHSV()[1]);
-		HandDetect.setS_MIN1(sceneData.getHSV()[2]);
-		HandDetect.setS_MAX1(sceneData.getHSV()[3]);
-		HandDetect.setV_MIN1(sceneData.getHSV()[4]);
-		HandDetect.setV_MAX1(sceneData.getHSV()[5]);
+		ColorDetect.setH_MIN1(sceneData.getHSV()[0]);
+		ColorDetect.setH_MAX1(sceneData.getHSV()[1]);
+		ColorDetect.setS_MIN1(sceneData.getHSV()[2]);
+		ColorDetect.setS_MAX1(sceneData.getHSV()[3]);
+		ColorDetect.setV_MIN1(sceneData.getHSV()[4]);
+		ColorDetect.setV_MAX1(sceneData.getHSV()[5]);
 		H_MIN1.setValue((double) sceneData.getHSV()[0]);
 		H_MAX1.setValue((double) sceneData.getHSV()[1]);
 		S_MIN1.setValue((double) sceneData.getHSV()[2]);
@@ -163,73 +163,73 @@ H_MIN1.setValue((double) HandDetect.getH_MIN1());
 	@FXML
 	protected void setH_MIN1() {
 		System.out.println("H_MIN");
-		HandDetect.setH_MIN1((int) H_MIN1.getValue());
+		ColorDetect.setH_MIN1((int) H_MIN1.getValue());
 	}
 
 	@FXML
 	protected void setH_MAX1() {
 		System.out.println("H_MAX");
-		HandDetect.setH_MAX1((int) H_MAX1.getValue());
+		ColorDetect.setH_MAX1((int) H_MAX1.getValue());
 	}
 
 	@FXML
 	protected void setS_MIN1() {
 		System.out.println("S_MIN");
-		HandDetect.setS_MIN1((int) S_MIN1.getValue());
+		ColorDetect.setS_MIN1((int) S_MIN1.getValue());
 	}
 
 	@FXML
 	protected void setS_MAX1() {
 		System.out.println("S_MAX");
-		HandDetect.setS_MAX1((int) S_MAX1.getValue());
+		ColorDetect.setS_MAX1((int) S_MAX1.getValue());
 	}
 
 	@FXML
 	protected void setV_MIN1() {
 		System.out.println("V_MIN");
-		HandDetect.setV_MIN1((int) V_MIN1.getValue());
+		ColorDetect.setV_MIN1((int) V_MIN1.getValue());
 	}
 
 	@FXML
 	protected void setV_MAX1() {
 		System.out.println("V_MAX");
-		HandDetect.setV_MAX1((int) V_MAX1.getValue());
+		ColorDetect.setV_MAX1((int) V_MAX1.getValue());
 	}
 	
 	@FXML
 	protected void setH_MIN2() {
 		System.out.println("H_MIN");
-		HandDetect.setH_MIN2((int) H_MIN2.getValue());
+		ColorDetect.setH_MIN2((int) H_MIN2.getValue());
 	}
 
 	@FXML
 	protected void setH_MAX2() {
 		System.out.println("H_MAX");
-		HandDetect.setH_MAX2((int) H_MAX2.getValue());
+		ColorDetect.setH_MAX2((int) H_MAX2.getValue());
 	}
 
 	@FXML
 	protected void setS_MIN2() {
 		System.out.println("S_MIN");
-		HandDetect.setS_MIN2((int) S_MIN2.getValue());
+		ColorDetect.setS_MIN2((int) S_MIN2.getValue());
 	}
 
 	@FXML
 	protected void setS_MAX2() {
 		System.out.println("S_MAX");
-		HandDetect.setS_MAX2((int) S_MAX2.getValue());
+		ColorDetect.setS_MAX2((int) S_MAX2.getValue());
 	}
 
 	@FXML
 	protected void setV_MIN2() {
 		System.out.println("V_MIN");
-		HandDetect.setV_MIN2((int) V_MIN2.getValue());
+		ColorDetect.setV_MIN2((int) V_MIN2.getValue());
 	}
 
 	@FXML
 	protected void setV_MAX2() {
 		System.out.println("V_MAX");
-		HandDetect.setV_MAX2((int) V_MAX2.getValue());
+		ColorDetect.setV_MAX2((int) V_MAX2.getValue());
 	}
 	
 	public void saveHSVData(File file) {

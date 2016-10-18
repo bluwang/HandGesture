@@ -18,35 +18,28 @@ import org.opencv.objdetect.Objdetect;
 
 public class FaceDetect {
 	
+	private CascadeClassifier faceDetector;	
+	private MatOfRect faceDetections;
+
+	private List<Rect> rects;
+	
 	public FaceDetect() {
-		// TODO Auto-generated constructor stub
+		rects = new ArrayList<Rect>();
+		faceDetector = new CascadeClassifier("C:/Program Files/openCV/openCV-2.4.13/opencv/sources/data/lbpcascades/lbpcascade_frontalface.xml");
 	}
 	
-	public static void run(){
-		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-		System.loadLibrary("opencv_java249");
-//		CascadeClassifier faceDetector = new CascadeClassifier("./lbpcascade_frontalcatface.xml");
-		CascadeClassifier faceDetector = new CascadeClassifier("C:/Program Files/openCV/openCV2.4.9/opencv/sources/data/lbpcascades/lbpcascade_frontalface.xml");
-//		CascadeClassifier faceDetector = new CascadeClassifier("./lbpcascade_profileface.xml");
-//		CascadeClassifier faceDetector = new CascadeClassifier("./lbpcascade_silverware.xml");
-		Mat image = Highgui.imread("D:/Coding/Java/java/HandGesture/src/liuwei/ch/app/model/test.jpg");
-		MatOfRect faceDetections = new MatOfRect();
+	public List<Rect> detect(Mat image){
+		rects.clear();
+		faceDetections = new MatOfRect();
 		faceDetector.detectMultiScale(image, faceDetections);
 		
-		System.out.println(String.format("Detected %s faces",
-				faceDetections.toArray().length));
 		for (Rect rect : faceDetections.toArray()) {
-			Core.rectangle(image, new Point(rect.x, rect.y), new Point(rect.x
-					+ rect.width, rect.y + rect.height), new Scalar(0, 255, 0));
+			if (rect.area() > 1000) {
+				rects.add(rect);
+			}
 		}
 		
-		String filename = "./FaceDetect.png";
-		System.out.println(String.format("Writing %s", filename));
-		Highgui.imwrite(filename, image);
+		return rects;
 	}
 	
-	public static void main(String[] args) {
-		run();
-	}
-
 }
