@@ -15,6 +15,11 @@ import org.opencv.imgproc.Imgproc;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 
+/**
+ * 通用的工具类，其中定义了图片格式转换、绘制轮廓、获取轮廓等功能
+ * @author Administrator
+ *
+ */
 public class MyTool {
 	
 	/**
@@ -23,26 +28,36 @@ public class MyTool {
 	 * @return the image of javaFX
 	 */
 	public static Image MatToImage(Mat frame) {
-		// TODO Auto-generated method stub
 		int width = frame.width(), height = frame.height(), channels = frame.channels();
 		byte[] sourcePixels = new byte[width * height * channels];
+
 		frame.get(0, 0, sourcePixels);
 		BufferedImage bufferedImage;
+
 		if (frame.channels() > 1) {
 			bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
 		} else {
 			bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
 		}
+
 		final byte[] targetPixels = ((DataBufferByte) bufferedImage.getRaster().getDataBuffer()).getData();
+
 		System.arraycopy(sourcePixels, 0, targetPixels, 0, sourcePixels.length);
 		Image image = SwingFXUtils.toFXImage(bufferedImage, null);
+
 		return image;
 	}
 	
+	/**
+	 * 绘制输入图像的轮廓
+	 * @param imagae 输入的图像
+	 */
 	public static void drawContours(Mat image) {
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();   
+
 		Imgproc.threshold(image, image, 100, 255, Imgproc.THRESH_BINARY);
 		Imgproc.findContours(image, contours, new Mat(), Imgproc.RETR_LIST,Imgproc.CHAIN_APPROX_SIMPLE);
+
 		if (contours.size() > 0) {
 			Rect r = Imgproc.boundingRect(contours.get(0));
 			for (int i = 1; i < contours.size(); i++) {
@@ -54,12 +69,23 @@ public class MyTool {
 		}
 	}
 	
+	/**
+	 * 把相应的矩形框绘制到图像中
+	 * @param image 需要绘制的图像
+	 * @param rects 相应的矩形框
+	 */
 	public static void drawContours(Mat image, List<Rect> rects) {
 		for (int i = 1; i < rects.size(); i++) {
 			Core.rectangle(image, rects.get(i).tl(), rects.get(i).br(), new Scalar(255, 0, 0, 255), 3);
 		}
 	}
 	
+	/**
+	 * 把相应的矩形框绘制到图像中,可以指定相应颜色
+	 * @param image 需要绘制的图像
+	 * @param rects 相应的矩形框
+	 * @param colorName 相应的颜色名
+	 */
 	public static void drawContours(Mat image, List<Rect> rects, String colorName) {
 		Scalar color;
 
@@ -96,12 +122,18 @@ public class MyTool {
 		}
 	}
 
+	/**
+	 * 获取相应图像的轮廓矩形框
+	 * @param image 输入的图像
+	 * @return 图像轮廓矩形框
+	 */
 	public static List<Rect> getContours(Mat image) {
 		List<Rect> rects = new ArrayList<Rect>();
-		//画轮廓
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();   
+
 		Imgproc.threshold(image, image, 100, 255, Imgproc.THRESH_BINARY);
 		Imgproc.findContours(image, contours, new Mat(), Imgproc.RETR_LIST,Imgproc.CHAIN_APPROX_SIMPLE);
+
 		if (contours.size() > 0) {
 			Rect rect = Imgproc.boundingRect(contours.get(0));
 			for (int i = 1; i < contours.size(); i++) {

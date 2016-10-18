@@ -5,24 +5,20 @@ import java.util.List;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfPoint;
-import org.opencv.core.MatOfRect;
-import org.opencv.core.Point;
 import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
-import org.opencv.objdetect.CascadeClassifier;
-import org.opencv.video.BackgroundSubtractor;
-import org.opencv.video.BackgroundSubtractorMOG;
-import org.opencv.video.BackgroundSubtractorMOG2;
-import org.opencv.video.Video;
 import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import liuwei.ch.app.util.MyTool;
 
+/**
+ * 对手势进行检测
+ * @author Administrator
+ *
+ */
 public class Detect {
 	
 	private FaceDetect faceDetect;
@@ -31,12 +27,8 @@ public class Detect {
 	
 	private Mat currentFrame;
 	private VideoCapture capture;
-	private MatOfRect faceDetections;
-	private CascadeClassifier faceDetector;
-
 	private Image currentImage;
 
-	private boolean isFirstFrame;
 	private boolean cameraActive;
 	private int width = 400;
 	private int height = 400;
@@ -53,70 +45,64 @@ public class Detect {
 		faceDetect = new FaceDetect();
 		motionDetect = new MotionDetect();
 		colorDetect = new ColorDetect();
+
 		faceRects = new ArrayList<Rect>();
 		motionRects = new ArrayList<Rect>();
 		colorRects = new ArrayList<Rect>();
-		isFirstFrame = true;
+
+		currentFrame = new Mat();
+		capture = new VideoCapture(videodevice);
+
 		cameraActive = false;
 	}
 	
-	
+	/**
+	 * 进行检测
+	 * @param imageView JavaFX的图像显示控件
+	 */
 	public void start(ImageView imageView) {
 		try {
-			if (!cameraActive) {
-				System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-				capture = new VideoCapture(videodevice);
-				System.out.println("open the camera");
-				if (this.capture.isOpened()) {
-					cameraActive = true;
-					currentFrame = new Mat();
-					Thread processFrame = new Thread(new Runnable() {
-						
-						@Override
-						public void run() {
-							// TODO Auto-generated method stub
-							while (cameraActive) {
-								capture.read(currentFrame);
-								Mat frame = new Mat();
-								currentFrame.copyTo(frame);
-								Imgproc.blur(frame, frame, new Size(3, 3));
-								
-								//人脸检测
-								faceRects = faceDetect.detect(frame);
+			if (this.capture.isOpened() && !cameraActive) {
+				cameraActive = true;
 
-								//运动检测
-								motionRects = motionDetect.detect(frame);
-//								MOG.apply(currentFrame, bSMat);
-//								MOG2.apply(currentFrame, bSMat);
-//								bSMat = handDetect.sub(currentFrame);
-
-								//颜色匹配检测
-								colorRects = colorDetect.detect(frame);
+				Thread processFrame = new Thread(new Runnable() {
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						while (cameraActive) {
+							capture.read(currentFrame);
+							Imgproc.blur(currentFrame, currentFrame, new Size(3, 3));
 							
-								showResult(frame);
-								Core.flip(frame, frame, 1);
-								Imgproc.resize(frame, frame, new Size(350, 300));
-								
-								currentImage = MyTool.MatToImage(frame);
-								Platform.runLater(() -> {
-									imageView.setImage(currentImage);
-									imageView.setFitWidth(width);
-									imageView.setFitHeight(height);
-								});
-							}
+							//人脸检测
+							faceRects = faceDetect.detect(currentFrame);
+							
+							//运动检测
+							motionRects = motionDetect.detect(currentFrame);
+							
+							//颜色匹配检测
+							colorRects = colorDetect.detect(currentFrame);
+							
+							showResult();
+							Core.flip(currentFrame, currentFrame, 1);
+							Imgproc.resize(currentFrame, currentFrame, new Size(350, 300));
+							
+							currentImage = MyTool.MatToImage(currentFrame);
+
+							Platform.runLater(() -> {
+								imageView.setImage(currentImage);
+								imageView.setFitWidth(width);
+								imageView.setFitHeight(height);
+							});
 						}
-					});
-					
-					processFrame.setDaemon(true);
-					processFrame.setName("processFrame");
-					processFrame.start();
-				}
-				else {
-					System.out.println("capture can't open");
-				}
+					}
+				});
+				
+				processFrame.setDaemon(true);
+				processFrame.setName("processFrame");
+				processFrame.start();
 			}
 			else {
-				this.capture.release();
+				System.out.println("capture can't open");
 			}
 		} 
 		catch (Exception e) {
@@ -124,6 +110,9 @@ public class Detect {
 		}
 	}
 	
+	/**
+	 * 关闭摄像头，停止检测
+	 */
 	public void stopCamera() {
 		if (cameraActive) {
 			if (capture.isOpened()) {
@@ -132,10 +121,13 @@ public class Detect {
 		}
 	}
 	
-	private void showResult(Mat frame) {
-		MyTool.drawContours(frame, faceRects, "red");
-		MyTool.drawContours(frame, motionRects, "green");
-		MyTool.drawContours(frame, colorRects, "blue");
+	/**
+	 * 显示检测的结果
+	 */
+	private void showResult() {
+		MyTool.drawContours(currentFrame, faceRects, "red");
+		MyTool.drawContours(currentFrame, motionRects, "green");
+		MyTool.drawContours(currentFrame, colorRects, "blue");
 		
 		List<Rect> mergeRects = new ArrayList<Rect>();
 		Rect motionRect, colorRect;
@@ -156,22 +148,7 @@ public class Detect {
 			}
 		}
 		
-		MyTool.drawContours(frame, mergeRects, "white");
-	}
-	
-	public void faceDetect(Mat frame) {
-		faceDetections = new MatOfRect();
-		faceDetector.detectMultiScale(frame, faceDetections);
-		
-		System.out.println(String.format("Detected %s faces",
-				faceDetections.toArray().length));
-		for (Rect rect : faceDetections.toArray()) {
-			Core.rectangle(frame, new Point(rect.x, rect.y), new Point(rect.x
-					+ rect.width, rect.y + rect.height), new Scalar(0, 255, 0));
-		}
-		
-		String filename = "./Result/FaceDetect.png";
-		System.out.println(String.format("Writing %s", filename));
+		MyTool.drawContours(currentFrame, mergeRects, "white");
 	}
 	
 }

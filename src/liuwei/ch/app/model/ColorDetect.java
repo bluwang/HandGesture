@@ -1,18 +1,20 @@
 package liuwei.ch.app.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.opencv.core.Core;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfPoint;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 import liuwei.ch.app.util.MyTool;
 
+/**
+ * 对手进行颜色检测
+ * @author Administrator
+ *
+ */
 public class ColorDetect {
 	
 	private static int H_MIN1 = 0; 
@@ -28,52 +30,47 @@ public class ColorDetect {
 	private static int V_MIN2 = 30; 
 	private static int V_MAX2 = 256; 
 	
-	private Mat backgroundMat;
-	private Mat resultMat;
-
-	private boolean isFirstMat;
-	private int no;
-	private List<Rect> rects;
-
 	public ColorDetect() {
-		isFirstMat = true;
-		backgroundMat = new Mat();
-		resultMat = new Mat();
-		no = 1;
 	}
 	
+	/**
+	 * 用颜色对手进行检测
+	 * @param inputMat 输入图像
+	 * @return 返回检测到的在颜色范围内的轮廓矩形框
+	 */
 	public List<Rect> detect(Mat inputMat) {
 		Mat mat1 = new Mat();
 		Mat mat2 = new Mat();
 		Mat resultMat = new Mat();
+
 //		Imgproc.medianBlur(inputMat, inputMat, 5);
 		Imgproc.cvtColor(inputMat, resultMat, Imgproc.COLOR_BGR2HSV);
+
 //		Core.inRange(resultMat, new Scalar(H_MIN, S_MIN, V_MIN, 255), new Scalar(H_MAX, S_MAX, V_MAX, 255), resultMat);
 		Core.inRange(resultMat, new Scalar(H_MIN1, S_MIN1, V_MIN1), new Scalar(H_MAX1, S_MAX1, V_MAX1), mat1);
 		Core.inRange(resultMat, new Scalar(H_MIN2, S_MIN2, V_MIN2), new Scalar(H_MAX2, S_MAX2, V_MAX2), mat2);
 		Core.bitwise_or(mat1, mat2, resultMat);
 		
-		rects = MyTool.getContours(resultMat);
-		
-		return rects;
+		return MyTool.getContours(resultMat);
 	}
-	
-	public Mat sub(Mat inputMat) {
-		System.out.println(no);
-		++no;
 
-		if (isFirstMat) {
-			inputMat.copyTo(backgroundMat);
-			resultMat = backgroundMat;
-			isFirstMat = false;
-		}
-		else {
-			Imgproc.cvtColor(inputMat, inputMat, Imgproc.COLOR_BGR2GRAY);
-			Imgproc.cvtColor(backgroundMat, backgroundMat, Imgproc.COLOR_BGR2GRAY);
-			Core.subtract(inputMat, backgroundMat, resultMat);
-			Core.bitwise_not(resultMat, resultMat);
-		}
-		return resultMat;
+	/**
+	 * 设置颜色检测范围值
+	 * @param data 颜色检测HSV数据
+	 */
+	public static void setHSVData(int[] data) {
+		H_MIN1 = data[0];
+		H_MAX1 = data[1];
+		S_MIN1 = data[2];
+		S_MAX1 = data[3];
+		V_MIN1 = data[4];
+		V_MAX1 = data[5];
+		H_MIN2 = data[6];
+		H_MAX2 = data[7];
+		S_MIN2 = data[8];
+		S_MAX2 = data[9];
+		V_MIN2 = data[10];
+		V_MAX2 = data[11];
 	}
 
 	public static int getH_MIN1() {

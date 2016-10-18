@@ -1,25 +1,27 @@
 package liuwei.ch.app.model;
 
+/**
+ * HSVÊý¾Ý
+ * @author Administrator
+ *
+ */
 public class HSVData {
 	
-	private static byte H_MIN1 = 0; 
-	private static byte H_MAX1 = 0; 
-	private static byte S_MIN1 = 0; 
-	private static byte S_MAX1 = 0; 
-	private static byte V_MIN1 = 0; 
-	private static byte V_MAX1 = 0; 
+	private int[] data;
 	
-	public byte[] getHSV() {
-		byte[] data = {H_MIN1, H_MAX1, S_MIN1, S_MAX1, V_MIN1, V_MAX1};
+	public HSVData() {
+		data = new int[12];
+	}
+	
+	public HSVData(int[] data) {
+		this.data = data;
+	}
+	
+	public int[] getHSV() {
 		return data;
 	}
 	
-	public void setHSV(byte[] data) {
-		H_MIN1 = data[0];
-		H_MAX1 = data[1];
-		S_MIN1 = data[2];
-		S_MAX1 = data[3];
-		V_MIN1 = data[4];
-		V_MAX1 = data[5];
+	public void setHSV(int[] data) {
+		this.data = data;
 	}
 }

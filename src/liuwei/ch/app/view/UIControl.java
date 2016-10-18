@@ -53,11 +53,12 @@ public class UIControl {
 	@FXML
 	private Slider V_MAX2;
 
-
-	File colorRangeFile;
-	boolean isPlay;
 	Detect detect;
 	HSVDataWrapper hsvDataWrapper;
+
+	File colorRangeFile;
+
+	boolean isPlay;
 	
 	public UIControl() {
 		isPlay = false;
@@ -67,8 +68,11 @@ public class UIControl {
 		loadHSVData(colorRangeFile);
 	}
 
+	/**
+	 * 初始化Slider的值
+	 */
 	private void init() {
-H_MIN1.setValue((double) ColorDetect.getH_MIN1());
+		H_MIN1.setValue((double) ColorDetect.getH_MIN1());
 		H_MIN2.setValue((double) ColorDetect.getH_MIN2());
 		H_MAX1.setValue((double) ColorDetect.getH_MAX1());
 		H_MAX2.setValue((double) ColorDetect.getH_MAX2());
@@ -81,7 +85,28 @@ H_MIN1.setValue((double) ColorDetect.getH_MIN1());
 		V_MAX1.setValue((double) ColorDetect.getV_MAX1());
 		V_MAX2.setValue((double) ColorDetect.getV_MAX2());
 	}
+	
+	/**
+	 * 设置slider的值
+	 */
+	private void setSlider(int[] data) {
+		H_MIN1.setValue((double) data[0]);
+		H_MIN2.setValue((double) data[1]);
+		H_MAX1.setValue((double) data[2]);
+		H_MAX2.setValue((double) data[3]);
+		S_MIN1.setValue((double) data[4]);
+		S_MIN2.setValue((double) data[5]);
+		S_MAX1.setValue((double) data[6]);
+		S_MAX2.setValue((double) data[7]);
+		V_MIN1.setValue((double) data[8]);
+		V_MIN2.setValue((double) data[9]);
+		V_MAX1.setValue((double) data[10]);
+		V_MAX2.setValue((double) data[11]);
+	}
 
+	/**
+	 * 开启或关闭摄像头
+	 */
 	@FXML
 	protected void startOrStopCamera() {
 		if (isPlay) {
@@ -97,6 +122,10 @@ H_MIN1.setValue((double) ColorDetect.getH_MIN1());
 		init();
 	}
 	
+	/**
+	 * 保存当前ColorRange的值为相应场景
+	 * @throws IOException
+	 */
 	@FXML
 	protected void saveScene() throws IOException {
 		TextInputDialog inputDialog = new TextInputDialog("请输入场景名");
@@ -104,15 +133,18 @@ H_MIN1.setValue((double) ColorDetect.getH_MIN1());
 		
 		Optional<String> result = inputDialog.showAndWait();
 		
-		byte[] data = {(byte)H_MIN1.getValue(), (byte)H_MAX1.getValue(),
-				(byte)S_MIN1.getValue(), (byte)S_MAX1.getValue(),
-				(byte)V_MIN1.getValue(), (byte)V_MAX1.getValue()};
+		int[] data = {
+				(int)H_MIN1.getValue(), (int)H_MAX1.getValue(),
+				(int)S_MIN1.getValue(), (int)S_MAX1.getValue(),
+				(int)V_MIN1.getValue(), (int)V_MAX1.getValue(),
+				(int)H_MIN2.getValue(), (int)H_MAX2.getValue(),
+				(int)S_MIN2.getValue(), (int)S_MAX2.getValue(),
+				(int)V_MIN2.getValue(), (int)V_MAX2.getValue()
+				};
 		
 		if (result.isPresent()) {
-			HSVData hsvData = new HSVData();
-			hsvData.setHSV(data);
+			HSVData hsvData = new HSVData(data);
 			String sceneName = result.get();
-			
 			hsvDataWrapper.add(sceneName, hsvData);
 
 			File file = new File("D:/Coding/Java/java/HandGesture/resources/XML/colorRange.xml");
@@ -120,6 +152,9 @@ H_MIN1.setValue((double) ColorDetect.getH_MIN1());
 		}
 	}
 	
+	/**
+	 * 加载相应的场景到选择按钮让用户进行选择
+	 */
 	@FXML
 	protected void loadScene() {
 		sceneChoose.getItems().clear();
@@ -129,35 +164,68 @@ H_MIN1.setValue((double) ColorDetect.getH_MIN1());
 		}
 	}
 	
+	/**
+	 * 设置当前的ColorRange值为选择按钮中的场景值
+	 */
 	@FXML
 	protected void setScene() {
-		System.out.println(sceneChoose.getValue());
-		
 		String sceneName = sceneChoose.getValue().toString();
 		HSVData sceneData = hsvDataWrapper.getHSVData(sceneName);
-		ColorDetect.setH_MIN1(sceneData.getHSV()[0]);
-		ColorDetect.setH_MAX1(sceneData.getHSV()[1]);
-		ColorDetect.setS_MIN1(sceneData.getHSV()[2]);
-		ColorDetect.setS_MAX1(sceneData.getHSV()[3]);
-		ColorDetect.setV_MIN1(sceneData.getHSV()[4]);
-		ColorDetect.setV_MAX1(sceneData.getHSV()[5]);
-		H_MIN1.setValue((double) sceneData.getHSV()[0]);
-		H_MAX1.setValue((double) sceneData.getHSV()[1]);
-		S_MIN1.setValue((double) sceneData.getHSV()[2]);
-		S_MAX1.setValue((double) sceneData.getHSV()[3]);
-		V_MIN1.setValue((double) sceneData.getHSV()[4]);
-		V_MAX1.setValue((double) sceneData.getHSV()[5]);
+		
+		ColorDetect.setHSVData(sceneData.getHSV());
+		this.setSlider(sceneData.getHSV());
 	}
 	
+	/**
+	 * 删除相应的场景
+	 */
 	@FXML
 	protected void deleteScene() {
 		
 	}
 	
+	/**
+	 * 清除所以场景
+	 */
 	@FXML
 	protected void clearScenes() {
 		hsvDataWrapper = new HSVDataWrapper();
 		saveHSVData(colorRangeFile);
+	}
+	
+	/**
+	 * 将相应的场景数据储存到XML文件进行保存
+	 * @param file 起储存作业的XML文件
+	 */
+	public void saveHSVData(File file) {
+		try {
+			JAXBContext context = JAXBContext.newInstance(HSVDataWrapper.class);
+			Marshaller marshaller = context.createMarshaller();
+			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+			
+			// Marshalling and saving XML to the file.
+			marshaller.marshal(hsvDataWrapper, file);
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+	}
+	
+	/**
+	 * 加载所有的场景数据到内存中，供以后使用
+	 * @param file 相应的XML文件
+	 */
+	public void loadHSVData(File file) {
+		try {
+			JAXBContext context = JAXBContext.newInstance(HSVDataWrapper.class);
+			Unmarshaller um = context.createUnmarshaller();
+			
+			// Reading XML from the file and unmarshalling.
+			hsvDataWrapper = (HSVDataWrapper) um.unmarshal(file);
+			
+			System.out.println("load successful");
+		} catch (Exception e) {
+			System.out.println(e);
+		}
 	}
 
 	@FXML
@@ -230,39 +298,6 @@ H_MIN1.setValue((double) ColorDetect.getH_MIN1());
 	protected void setV_MAX2() {
 		System.out.println("V_MAX");
 		ColorDetect.setV_MAX2((int) V_MAX2.getValue());
-	}
-	
-	public void saveHSVData(File file) {
-		try {
-			JAXBContext context = JAXBContext.newInstance(HSVDataWrapper.class);
-			Marshaller marshaller = context.createMarshaller();
-			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-			
-			// Marshalling and saving XML to the file.
-			marshaller.marshal(hsvDataWrapper, file);
-			
-			System.out.println("sava data");
-			
-		} catch (Exception e) {
-			// TODO: handle exception
-			System.out.println(e);
-		}
-	}
-	
-	public void loadHSVData(File file) {
-		try {
-			JAXBContext context = JAXBContext.newInstance(HSVDataWrapper.class);
-			Unmarshaller um = context.createUnmarshaller();
-			
-			// Reading XML from the file and unmarshalling.
-			hsvDataWrapper = (HSVDataWrapper) um.unmarshal(file);
-			
-			System.out.println("load successful");
-			
-		} catch (Exception e) {
-			// TODO: handle exception
-			System.out.println(e);
-		}
 	}
 	
 }
