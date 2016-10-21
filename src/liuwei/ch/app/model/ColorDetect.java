@@ -1,11 +1,22 @@
 package liuwei.ch.app.model;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
+import javax.management.MBeanConstructorInfo;
+
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfInt;
+import org.opencv.core.MatOfInt4;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
+import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import liuwei.ch.app.util.MyTool;
@@ -38,22 +49,51 @@ public class ColorDetect {
 	 * @param inputMat 输入图像
 	 * @return 返回检测到的在颜色范围内的轮廓矩形框
 	 */
-	public List<Rect> detect(Mat inputMat) {
+	public List<MatOfPoint> detect(Mat inputMat) {
 		Mat mat1 = new Mat();
 		Mat mat2 = new Mat();
 		Mat resultMat = new Mat();
 
 //		Imgproc.medianBlur(inputMat, inputMat, 5);
-		Imgproc.cvtColor(inputMat, resultMat, Imgproc.COLOR_BGR2HSV);
+//		Imgproc.blur(inputMat, inputMat, new Size(3, 3));
+//		Imgproc.GaussianBlur(inputMat, inputMat, 5.0, 1.0);
+//		Imgproc.bilateralFilter(inputMat, inputMat, d, sigmaColor, sigmaSpace);
+
+		//原始的效果差点
+//		Imgproc.cvtColor(inputMat, resultMat, Imgproc.COLOR_BGR2HSV);
+		Imgproc.cvtColor(inputMat, inputMat, Imgproc.COLOR_BGR2YCrCb);
+		//人脸干扰大
+//		Imgproc.cvtColor(inputMat, inputMat, Imgproc.COLOR_BGR2HLS);
+		//效果好像不错啊
+//		Imgproc.cvtColor(inputMat, inputMat, Imgproc.COLOR_BGR2Lab);
+		//比上面的差点
+//		Imgproc.cvtColor(inputMat, inputMat, Imgproc.COLOR_BGR2Luv);
+		//和lab好像差不多
+//		Imgproc.cvtColor(inputMat, inputMat, Imgproc.COLOR_BGR2XYZ);
+		//和luv差不多
+//		Imgproc.cvtColor(inputMat, inputMat, Imgproc.COLOR_BGR2YUV);
+		//卧槽，效果竟然和lab差不多！！
+//		Imgproc.cvtColor(inputMat, inputMat, Imgproc.COLOR_BGR2GRAY);
 
 //		Core.inRange(resultMat, new Scalar(H_MIN, S_MIN, V_MIN, 255), new Scalar(H_MAX, S_MAX, V_MAX, 255), resultMat);
-		Core.inRange(resultMat, new Scalar(H_MIN1, S_MIN1, V_MIN1), new Scalar(H_MAX1, S_MAX1, V_MAX1), mat1);
-		Core.inRange(resultMat, new Scalar(H_MIN2, S_MIN2, V_MIN2), new Scalar(H_MAX2, S_MAX2, V_MAX2), mat2);
-		Core.bitwise_or(mat1, mat2, resultMat);
+		Core.inRange(inputMat, new Scalar(H_MIN1, S_MIN1, V_MIN1), new Scalar(H_MAX1, S_MAX1, V_MAX1), inputMat);
+//		Core.inRange(inputMat, new Scalar(H_MIN1, S_MIN1, V_MIN1), new Scalar(H_MAX1, S_MAX1, V_MAX1), inputMat);
+		Core.bitwise_not(inputMat, inputMat);
+//		Core.inRange(inputMat, new Scalar(H_MIN2, S_MIN2, V_MIN2), new Scalar(H_MAX2, S_MAX2, V_MAX2), mat2);
+//		Core.bitwise_or(mat1, mat2, inputMat);
 		
-		return MyTool.getContours(resultMat);
+//		Imgproc.threshold(inputMat, inputMat, 100, 255, Imgproc.THRESH_BINARY);
+		Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2, 2));
+		Imgproc.dilate(inputMat, inputMat, element, new Point(-1, -1), 5);
+		Imgproc.erode(inputMat, inputMat, element, new Point(-1, -1), 5);
+		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();   
+		Imgproc.findContours(inputMat, contours, new Mat(), Imgproc.RETR_LIST,Imgproc.CHAIN_APPROX_SIMPLE);
+		
+		return contours;
+//		return null;
 	}
-
+	
+	
 	/**
 	 * 设置颜色检测范围值
 	 * @param data 颜色检测HSV数据

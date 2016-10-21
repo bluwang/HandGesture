@@ -93,6 +93,11 @@
               <MenuItem mnemonicParsing="false" text="Delete" />
             </items>
           </Menu>
+            <Menu mnemonicParsing="false" text="调试">
+              <items>
+                <MenuItem mnemonicParsing="false" text="颜色调整测试" />
+              </items>
+            </Menu>
             <Menu mnemonicParsing="false" text="场景">
               <items>
                 <MenuItem mnemonicParsing="false" text="保存场景" />

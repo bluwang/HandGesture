@@ -23,8 +23,8 @@ import javafx.scene.image.Image;
 public class MyTool {
 	
 	/**
-	 * Convert image of opencv to image of javaFX
-	 * @param frame the image of opencv
+	 * Convert image of openCV to image of javaFX
+	 * @param frame the image of openCV
 	 * @return the image of javaFX
 	 */
 	public static Image MatToImage(Mat frame) {
@@ -127,24 +127,34 @@ public class MyTool {
 	 * @param image ÊäÈëµÄÍ¼Ïñ
 	 * @return Í¼ÏñÂÖÀª¾ØĞÎ¿ò
 	 */
-	public static List<Rect> getContours(Mat image) {
-		List<Rect> rects = new ArrayList<Rect>();
+	public static List<MatOfPoint> getContours(Mat image) {
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();   
+		List<MatOfPoint> results = new ArrayList<MatOfPoint>();
 
-		Imgproc.threshold(image, image, 100, 255, Imgproc.THRESH_BINARY);
+//		Imgproc.threshold(image, image, 100, 255, Imgproc.THRESH_BINARY);
 		Imgproc.findContours(image, contours, new Mat(), Imgproc.RETR_LIST,Imgproc.CHAIN_APPROX_SIMPLE);
 
 		if (contours.size() > 0) {
-			Rect rect = Imgproc.boundingRect(contours.get(0));
-			for (int i = 1; i < contours.size(); i++) {
-				rect = Imgproc.boundingRect(contours.get(i));
-				if (rect.area() > 1500) {
-					rects.add(rect);
-				}
+			for (int i = 0; i < contours.size(); i++) {
+//				if (Imgproc.contourArea(contours.get(i)) > 1000) {
+					results.add(contours.get(i));
+//				}
 			}
 		}
 
-		return rects;
+		return results;
+	}
+	
+	public static void drawRect(Mat image, List<MatOfPoint> contours) {
+		if (contours.size() > 0) {
+			Rect r = Imgproc.boundingRect(contours.get(0));
+			for (int i = 1; i < contours.size(); i++) {
+				r = Imgproc.boundingRect(contours.get(i));
+				if (r.area() > 1500) {
+					Core.rectangle(image, r.tl(), r.br(), new Scalar(255, 0, 0, 255), 3);
+				}
+			}
+		}
 	}
 
 }

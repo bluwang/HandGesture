@@ -122,6 +122,11 @@ public class UIControl {
 		init();
 	}
 	
+	@FXML
+	protected void colorTest() {
+		
+	}
+	
 	/**
 	 * 保存当前ColorRange的值为相应场景
 	 * @throws IOException

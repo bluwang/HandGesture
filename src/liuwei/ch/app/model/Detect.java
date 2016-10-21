@@ -4,8 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfInt;
+import org.opencv.core.MatOfInt4;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
+import org.opencv.core.Point;
 import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
@@ -30,11 +37,16 @@ public class Detect {
 	private Image currentImage;
 
 	private boolean cameraActive;
+	private boolean isDetect;
 	private int width = 400;
 	private int height = 400;
 	private List<Rect> faceRects;
 	private List<Rect> motionRects;
 	private List<Rect> colorRects;
+	private List<MatOfPoint> faceContours;
+	private List<MatOfPoint> motionContours;
+	private List<MatOfPoint> colorContours;
+	private Rect handRect;
 	// Set video device
 	private static int videodevice = 0;
 	
@@ -50,10 +62,15 @@ public class Detect {
 		motionRects = new ArrayList<Rect>();
 		colorRects = new ArrayList<Rect>();
 
+		faceContours = new ArrayList<MatOfPoint>();
+		motionContours = new ArrayList<MatOfPoint>();
+		colorContours = new ArrayList<MatOfPoint>();
+
 		currentFrame = new Mat();
 		capture = new VideoCapture(videodevice);
 
 		cameraActive = false;
+		isDetect = false;
 	}
 	
 	/**
@@ -68,21 +85,35 @@ public class Detect {
 				Thread processFrame = new Thread(new Runnable() {
 					@Override
 					public void run() {
-						// TODO Auto-generated method stub
 						while (cameraActive) {
 							capture.read(currentFrame);
-							Imgproc.blur(currentFrame, currentFrame, new Size(3, 3));
+							
+//							Imgproc.blur(currentFrame, currentFrame, new Size(3, 3));
 							
 							//人脸检测
-							faceRects = faceDetect.detect(currentFrame);
+//							faceRects = faceDetect.detect(currentFrame);
 							
 							//运动检测
-							motionRects = motionDetect.detect(currentFrame);
+//							motionContours = motionDetect.detect(currentFrame);
+//							Imgproc.drawContours(currentFrame, motionContours, -1, new Scalar(255, 255, 255, 255), 3);
+//							MyTool.drawRect(currentFrame, motionContours);
 							
 							//颜色匹配检测
-							colorRects = colorDetect.detect(currentFrame);
+							colorContours = colorDetect.detect(currentFrame);
+//							colorDetect.detect(currentFrame, "test");
+//							Imgproc.drawContours(currentFrame, colorContours, -1, new Scalar(255, 255, 255, 255), 3);
+//							MyTool.drawRect(currentFrame, motionContours);
 							
-							showResult();
+//							showResult();
+//							
+//							if (isDetect) {
+//								currentFrame = currentFrame.submat(handRect).clone();
+//							}
+//							
+//							isDetect = false;
+//							findHull();
+							drawContours();
+							
 							Core.flip(currentFrame, currentFrame, 1);
 							Imgproc.resize(currentFrame, currentFrame, new Size(350, 300));
 							
@@ -90,8 +121,8 @@ public class Detect {
 
 							Platform.runLater(() -> {
 								imageView.setImage(currentImage);
-								imageView.setFitWidth(width);
-								imageView.setFitHeight(height);
+								imageView.setFitWidth(350);
+								imageView.setFitHeight(300);
 							});
 						}
 					}
@@ -106,7 +137,7 @@ public class Detect {
 			}
 		} 
 		catch (Exception e) {
-			// TODO: handle exception
+			System.out.println(e);
 		}
 	}
 	
@@ -129,12 +160,15 @@ public class Detect {
 		MyTool.drawContours(currentFrame, motionRects, "green");
 		MyTool.drawContours(currentFrame, colorRects, "blue");
 		
+		//将颜色匹配和运动检测到的轮廓进行融合
 		List<Rect> mergeRects = new ArrayList<Rect>();
 		Rect motionRect, colorRect;
+
 		for (int i = 0; i < motionRects.size(); i++) {
 			for (int j = 0; j < colorRects.size(); j++) {
 				motionRect = motionRects.get(i);
 				colorRect = colorRects.get(j);
+
 				if (motionRect.area() >= colorRect.area()) {
 					if (motionRect.x <= colorRect.x && motionRect.y <= colorRect.y) {
 						mergeRects.add(motionRect);
@@ -148,7 +182,105 @@ public class Detect {
 			}
 		}
 		
-		MyTool.drawContours(currentFrame, mergeRects, "white");
+		//保留最大面积的轮廓,并画出
+		Rect maxRect;
+		if (mergeRects.size() > 0) {
+			isDetect = true;
+			maxRect = mergeRects.get(0);
+
+			for (int i = 1; i < mergeRects.size(); i++) {
+				if (maxRect.area() < mergeRects.get(i).area()) {
+					maxRect = mergeRects.get(i);
+				}
+			}
+			
+			handRect = maxRect;
+			Core.rectangle(currentFrame, maxRect.tl(), maxRect.br(), new Scalar(255, 255, 255, 255), 4);
+		}
+	}
+	
+	private void findHull() {
+		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+		
+		Imgproc.findContours(currentFrame, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+		for (int i = 0; i < contours.size(); i++) {
+			Imgproc.drawContours(currentFrame, contours, -1, new Scalar(255, 255, 255, 255), 3);
+		}
+	}
+	
+	private void drawContours() {
+		if (colorContours.size() > 0) {
+//			Imgproc.drawContours(currentFrame, colorContours, -1, new Scalar(255, 255, 255, 255), 3);
+			
+			//取得最大面积的轮廓
+			int boundPos = 0;
+			for (int i = 1; i < colorContours.size(); i++) {
+				if (Imgproc.contourArea(colorContours.get(boundPos)) < Imgproc.contourArea(colorContours.get(i))) {
+					boundPos = i;
+				}
+			}
+
+			MatOfPoint maxContour = colorContours.get(boundPos);
+			
+			MatOfPoint2f pointMat = new MatOfPoint2f();
+			//这个起平滑曲线的作用，很强
+			Imgproc.approxPolyDP(new MatOfPoint2f(maxContour.toArray()), pointMat, 3, true);
+//			MatOfPoint contour = new MatOfPoint();
+			pointMat.convertTo(maxContour, CvType.CV_32S);
+			
+			colorContours.clear();
+			colorContours.add(maxContour);
+			Imgproc.drawContours(currentFrame, colorContours, -1, new Scalar(255, 255, 255, 255), 3);
+			
+			MatOfInt hull = new MatOfInt();
+//			Imgproc.convexHull(new MatOfPoint(contour.toArray()), hull);
+			Imgproc.convexHull(maxContour, hull);
+			
+			// Convert MatOfInt to MatOfPoint for drawing convex hull
+			// Loop over all contours
+			List<Point[]> hullpoints = new ArrayList<Point[]>();
+			Point[] points = new Point[hull.rows()];
+			
+			// Loop over all points that need to be hulled in current contour
+			for(int i=0; i < hull.rows(); i++){
+				int index = (int)hull.get(i, 0)[0];
+				points[i] = new Point(maxContour.get(index, 0)[0], maxContour.get(index, 0)[1]);
+			}
+			
+			hullpoints.add(points);
+			
+			// Convert Point arrays into MatOfPoint
+			List<MatOfPoint> hullmop = new ArrayList<MatOfPoint>();
+			for(int i=0; i < hullpoints.size(); i++){
+				MatOfPoint mop = new MatOfPoint();
+				mop.fromArray(hullpoints.get(i));
+				hullmop.add(mop);
+			}
+			
+//			colorContours.clear();
+			Imgproc.drawContours(currentFrame, hullmop, -1, new Scalar(255, 255, 255, 255), 3);
+			
+//			MatOfInt4 convexDefect = new MatOfInt4();
+//			Imgproc.convexityDefects(new MatOfPoint(contour.toArray()), hull, convexDefect);
+//			Imgproc.convexityDefects(maxContour, hull, convexDefect);
+			
+//			List<Integer> cdList = convexDefect.toList();
+////			Point[] datas = maxContour.toArray();
+//			for (int i = 0; i < cdList.size(); i += 4) {
+//				Point ptStart = datas[cdList.get(i)];
+//				Point ptEnd = datas[cdList.get(i+1)];
+//				Point ptFar = datas[cdList.get(i+2)];
+//				Point depth = datas[cdList.get(i+3)];
+				
+//				Core.line(currentFrame, ptStart, ptEnd, new Scalar(255, 255, 255), 3);
+//				Core.line(currentFrame, ptStart, ptFar, new Scalar(255, 255, 255), 3);
+//				Core.line(currentFrame, ptEnd, ptFar, new Scalar(255, 255, 255), 3);
+				
+//				Core.circle(currentFrame, ptStart, 5, new Scalar(255, 255, 255), 3);
+//				Core.circle(currentFrame, ptEnd, 5, new Scalar(255, 255, 255), 3);
+//				Core.circle(currentFrame, ptFar, 5, new Scalar(255, 255, 255), 3);
+//			}
+		}
 	}
 	
 }
