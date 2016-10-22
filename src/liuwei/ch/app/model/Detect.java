@@ -3,6 +3,7 @@ package liuwei.ch.app.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.omg.PortableServer.POAHelper;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -87,6 +88,8 @@ public class Detect {
 					public void run() {
 						while (cameraActive) {
 							capture.read(currentFrame);
+							Mat frame = new Mat();
+							currentFrame.copyTo(frame);
 							
 //							Imgproc.blur(currentFrame, currentFrame, new Size(3, 3));
 							
@@ -99,7 +102,7 @@ public class Detect {
 //							MyTool.drawRect(currentFrame, motionContours);
 							
 							//颜色匹配检测
-							colorContours = colorDetect.detect(currentFrame);
+							colorContours = colorDetect.detect(frame);
 //							colorDetect.detect(currentFrame, "test");
 //							Imgproc.drawContours(currentFrame, colorContours, -1, new Scalar(255, 255, 255, 255), 3);
 //							MyTool.drawRect(currentFrame, motionContours);
@@ -221,20 +224,24 @@ public class Detect {
 			}
 
 			MatOfPoint maxContour = colorContours.get(boundPos);
+			colorContours.clear();
+			colorContours.add(maxContour);
+//			Imgproc.drawContours(currentFrame, colorContours, -1, new Scalar(0, 0, 255, 255), 3);
 			
 			MatOfPoint2f pointMat = new MatOfPoint2f();
 			//这个起平滑曲线的作用，很强
-			Imgproc.approxPolyDP(new MatOfPoint2f(maxContour.toArray()), pointMat, 3, true);
+			Imgproc.approxPolyDP(new MatOfPoint2f(maxContour.toArray()), pointMat, 18, true);
 //			MatOfPoint contour = new MatOfPoint();
 			pointMat.convertTo(maxContour, CvType.CV_32S);
 			
 			colorContours.clear();
 			colorContours.add(maxContour);
-			Imgproc.drawContours(currentFrame, colorContours, -1, new Scalar(255, 255, 255, 255), 3);
+//			Imgproc.drawContours(currentFrame, colorContours, -1, new Scalar(0, 255, 0, 255), 3);
 			
 			MatOfInt hull = new MatOfInt();
 //			Imgproc.convexHull(new MatOfPoint(contour.toArray()), hull);
-			Imgproc.convexHull(maxContour, hull);
+			Imgproc.convexHull(maxContour, hull, true);
+			Imgproc.convexHull(maxContour, hull, false);
 			
 			// Convert MatOfInt to MatOfPoint for drawing convex hull
 			// Loop over all contours
@@ -258,29 +265,48 @@ public class Detect {
 			}
 			
 //			colorContours.clear();
-			Imgproc.drawContours(currentFrame, hullmop, -1, new Scalar(255, 255, 255, 255), 3);
+//			Imgproc.drawContours(currentFrame, hullmop, -1, new Scalar(255, 0, 0, 255), 3);
 			
-//			MatOfInt4 convexDefect = new MatOfInt4();
-//			Imgproc.convexityDefects(new MatOfPoint(contour.toArray()), hull, convexDefect);
-//			Imgproc.convexityDefects(maxContour, hull, convexDefect);
-			
-//			List<Integer> cdList = convexDefect.toList();
-////			Point[] datas = maxContour.toArray();
-//			for (int i = 0; i < cdList.size(); i += 4) {
-//				Point ptStart = datas[cdList.get(i)];
-//				Point ptEnd = datas[cdList.get(i+1)];
-//				Point ptFar = datas[cdList.get(i+2)];
-//				Point depth = datas[cdList.get(i+3)];
+			System.out.println(hull.toArray().length);
+			if (hull.toArray().length > 3) {
+				MatOfInt4 convexDefect = new MatOfInt4();
+//				Imgproc.convexityDefects(new MatOfPoint(contour.toArray()), hull, convexDefect);
+				Imgproc.convexityDefects(maxContour, hull, convexDefect);
 				
-//				Core.line(currentFrame, ptStart, ptEnd, new Scalar(255, 255, 255), 3);
-//				Core.line(currentFrame, ptStart, ptFar, new Scalar(255, 255, 255), 3);
-//				Core.line(currentFrame, ptEnd, ptFar, new Scalar(255, 255, 255), 3);
+				List<Integer> cdList = convexDefect.toList();
+				Point[] datas = maxContour.toArray();
+				int fingerNumber = 0;
 				
-//				Core.circle(currentFrame, ptStart, 5, new Scalar(255, 255, 255), 3);
-//				Core.circle(currentFrame, ptEnd, 5, new Scalar(255, 255, 255), 3);
-//				Core.circle(currentFrame, ptFar, 5, new Scalar(255, 255, 255), 3);
-//			}
+				for (int i = 0; i < cdList.size(); i += 4) {
+					Point ptStart = datas[cdList.get(i)];
+					Point ptEnd = datas[cdList.get(i+1)];
+					Point ptFar = datas[cdList.get(i+2)];
+					
+//				Core.line(currentFrame, ptStart, ptEnd, new Scalar(255, 0, 0), 3);
+//				Core.line(currentFrame, ptStart, ptFar, new Scalar(0, 255, 0), 3);
+//				Core.line(currentFrame, ptEnd, ptFar, new Scalar(0, 0, 255), 3);
+					
+//				Core.circle(currentFrame, ptStart, 5, new Scalar(255, 0, 0), 3);
+//				Core.circle(currentFrame, ptEnd, 5, new Scalar(0, 255, 0), 3);
+//				Core.circle(currentFrame, ptFar, 5, new Scalar(0, 0, 255), 3);
+					
+					System.out.println(distanceP2P(ptStart, ptFar));
+					System.out.println(distanceP2P(ptEnd, ptFar));
+					if (distanceP2P(ptStart, ptFar) > 40.0 && distanceP2P(ptEnd, ptFar) > 40.0 ) {
+						Core.circle(currentFrame, ptStart, 5, new Scalar(255, 0, 0), 3);
+						Core.circle(currentFrame, ptEnd, 5, new Scalar(0, 255, 0), 3);
+						Core.circle(currentFrame, ptFar, 5, new Scalar(0, 0, 255), 3);
+						fingerNumber += 1;
+					}
+				}
+				System.out.println("fingerNumber:" + fingerNumber);
+			}
 		}
+	}
+	
+	private float distanceP2P(Point a, Point b){
+		float d= (float) Math.sqrt(Math.abs( Math.pow(a.x-b.x,2) + Math.pow(a.y-b.y,2) )) ;  
+		return d;
 	}
 	
 }
