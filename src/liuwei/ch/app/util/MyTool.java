@@ -132,7 +132,7 @@ public class MyTool {
 		List<MatOfPoint> results = new ArrayList<MatOfPoint>();
 
 //		Imgproc.threshold(image, image, 100, 255, Imgproc.THRESH_BINARY);
-		Imgproc.findContours(image, contours, new Mat(), Imgproc.RETR_LIST,Imgproc.CHAIN_APPROX_SIMPLE);
+		Imgproc.findContours(image, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
 		if (contours.size() > 0) {
 			for (int i = 0; i < contours.size(); i++) {

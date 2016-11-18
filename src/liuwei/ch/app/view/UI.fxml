@@ -96,6 +96,7 @@
             <Menu mnemonicParsing="false" text="调试">
               <items>
                 <MenuItem mnemonicParsing="false" text="颜色调整测试" />
+                  <MenuItem fx:id="takePhoto" mnemonicParsing="false" onAction="#takePhoto" text="拍照" />
               </items>
             </Menu>
             <Menu mnemonicParsing="false" text="场景">

@@ -2,45 +2,11 @@
 <HSVDataWrapper>
     <HSVMap>
         <entry>
-            <key>test2</key>
-            <value>
-                <HSV>103</HSV>
-                <HSV>123</HSV>
-                <HSV>133</HSV>
-                <HSV>255</HSV>
-                <HSV>113</HSV>
-                <HSV>131</HSV>
-                <HSV>100</HSV>
-                <HSV>100</HSV>
-                <HSV>100</HSV>
-                <HSV>100</HSV>
-                <HSV>100</HSV>
-                <HSV>100</HSV>
-            </value>
-        </entry>
-        <entry>
             <key>ce</key>
             <value>
                 <HSV>0</HSV>
                 <HSV>176</HSV>
                 <HSV>0</HSV>
-                <HSV>255</HSV>
-                <HSV>0</HSV>
-                <HSV>255</HSV>
-                <HSV>100</HSV>
-                <HSV>100</HSV>
-                <HSV>100</HSV>
-                <HSV>100</HSV>
-                <HSV>100</HSV>
-                <HSV>100</HSV>
-            </value>
-        </entry>
-        <entry>
-            <key>test3</key>
-            <value>
-                <HSV>84</HSV>
-                <HSV>124</HSV>
-                <HSV>137</HSV>
                 <HSV>255</HSV>
                 <HSV>0</HSV>
                 <HSV>255</HSV>
@@ -61,6 +27,23 @@
                 <HSV>151</HSV>
                 <HSV>109</HSV>
                 <HSV>129</HSV>
+                <HSV>100</HSV>
+                <HSV>100</HSV>
+                <HSV>30</HSV>
+                <HSV>100</HSV>
+                <HSV>30</HSV>
+                <HSV>100</HSV>
+            </value>
+        </entry>
+        <entry>
+            <key>A406</key>
+            <value>
+                <HSV>0</HSV>
+                <HSV>255</HSV>
+                <HSV>135</HSV>
+                <HSV>255</HSV>
+                <HSV>93</HSV>
+                <HSV>136</HSV>
                 <HSV>100</HSV>
                 <HSV>100</HSV>
                 <HSV>30</HSV>
@@ -103,6 +86,142 @@
                 <HSV>100</HSV>
             </value>
         </entry>
+        <entry>
+            <key>HSV实验室</key>
+            <value>
+                <HSV>60</HSV>
+                <HSV>112</HSV>
+                <HSV>51</HSV>
+                <HSV>148</HSV>
+                <HSV>108</HSV>
+                <HSV>255</HSV>
+                <HSV>100</HSV>
+                <HSV>100</HSV>
+                <HSV>100</HSV>
+                <HSV>100</HSV>
+                <HSV>100</HSV>
+                <HSV>100</HSV>
+            </value>
+        </entry>
+        <entry>
+            <key>寝室黑夜2</key>
+            <value>
+                <HSV>0</HSV>
+                <HSV>205</HSV>
+                <HSV>118</HSV>
+                <HSV>100</HSV>
+                <HSV>30</HSV>
+                <HSV>30</HSV>
+                <HSV>100</HSV>
+                <HSV>100</HSV>
+                <HSV>100</HSV>
+                <HSV>100</HSV>
+                <HSV>100</HSV>
+                <HSV>100</HSV>
+            </value>
+        </entry>
+        <entry>
+            <key>寝室黑夜3</key>
+            <value>
+                <HSV>0</HSV>
+                <HSV>255</HSV>
+                <HSV>0</HSV>
+                <HSV>232</HSV>
+                <HSV>7</HSV>
+                <HSV>255</HSV>
+                <HSV>100</HSV>
+                <HSV>100</HSV>
+                <HSV>30</HSV>
+                <HSV>100</HSV>
+                <HSV>30</HSV>
+                <HSV>100</HSV>
+            </value>
+        </entry>
+        <entry>
+            <key>实验室1</key>
+            <value>
+                <HSV>0</HSV>
+                <HSV>133</HSV>
+                <HSV>0</HSV>
+                <HSV>255</HSV>
+                <HSV>0</HSV>
+                <HSV>255</HSV>
+                <HSV>100</HSV>
+                <HSV>100</HSV>
+                <HSV>30</HSV>
+                <HSV>100</HSV>
+                <HSV>30</HSV>
+                <HSV>100</HSV>
+            </value>
+        </entry>
+        <entry>
+            <key>test2</key>
+            <value>
+                <HSV>103</HSV>
+                <HSV>123</HSV>
+                <HSV>133</HSV>
+                <HSV>255</HSV>
+                <HSV>113</HSV>
+                <HSV>131</HSV>
+                <HSV>100</HSV>
+                <HSV>100</HSV>
+                <HSV>100</HSV>
+                <HSV>100</HSV>
+                <HSV>100</HSV>
+                <HSV>100</HSV>
+            </value>
+        </entry>
+        <entry>
+            <key>test3</key>
+            <value>
+                <HSV>84</HSV>
+                <HSV>124</HSV>
+                <HSV>137</HSV>
+                <HSV>255</HSV>
+                <HSV>0</HSV>
+                <HSV>255</HSV>
+                <HSV>100</HSV>
+                <HSV>100</HSV>
+                <HSV>100</HSV>
+                <HSV>100</HSV>
+                <HSV>100</HSV>
+                <HSV>100</HSV>
+            </value>
+        </entry>
+        <entry>
+            <key>寝室黑夜1</key>
+            <value>
+                <HSV>0</HSV>
+                <HSV>255</HSV>
+                <HSV>84</HSV>
+                <HSV>178</HSV>
+                <HSV>112</HSV>
+                <HSV>228</HSV>
+                <HSV>100</HSV>
+                <HSV>100</HSV>
+                <HSV>30</HSV>
+                <HSV>100</HSV>
+                <HSV>30</HSV>
+                <HSV>100</HSV>
+            </value>
+        </entry>
+        <entry>
+            <key>实验室</key>
+            <value>
+                <HSV>0</HSV>
+                <HSV>110</HSV>
+                <HSV>139</HSV>
+                <HSV>143</HSV>
+                <HSV>110</HSV>
+                <HSV>155</HSV>
+                <HSV>100</HSV>
+                <HSV>100</HSV>
+                <HSV>30</HSV>
+                <HSV>100</HSV>
+                <HSV>30</HSV>
+                <HSV>100</HSV>
+            </value>
+        </entry>
     </HSVMap>
     <sceneName>test</sceneName>
     <sceneName>test2</sceneName>
@@ -110,4 +229,11 @@
     <sceneName>寝室1</sceneName>
     <sceneName>寝室2</sceneName>
     <sceneName>ce</sceneName>
+    <sceneName>实验室</sceneName>
+    <sceneName>HSV实验室</sceneName>
+    <sceneName>A406</sceneName>
+    <sceneName>实验室1</sceneName>
+    <sceneName>寝室黑夜1</sceneName>
+    <sceneName>寝室黑夜2</sceneName>
+    <sceneName>寝室黑夜3</sceneName>
 </HSVDataWrapper>

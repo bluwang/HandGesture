@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.management.MBeanConstructorInfo;
-
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -55,13 +53,13 @@ public class ColorDetect {
 		Mat resultMat = new Mat();
 
 //		Imgproc.medianBlur(inputMat, inputMat, 5);
-//		Imgproc.blur(inputMat, inputMat, new Size(3, 3));
+		Imgproc.blur(inputMat, inputMat, new Size(2, 2));
 //		Imgproc.GaussianBlur(inputMat, inputMat, 5.0, 1.0);
 //		Imgproc.bilateralFilter(inputMat, inputMat, d, sigmaColor, sigmaSpace);
 
-		//原始的效果差点
-//		Imgproc.cvtColor(inputMat, resultMat, Imgproc.COLOR_BGR2HSV);
-		Imgproc.cvtColor(inputMat, inputMat, Imgproc.COLOR_BGR2YCrCb);
+		//原始的效果差点,好像HSV对光照强的比较适合，YCrCb光照弱比较好
+		Imgproc.cvtColor(inputMat, resultMat, Imgproc.COLOR_BGR2HSV);
+//		Imgproc.cvtColor(inputMat, inputMat, Imgproc.COLOR_BGR2YCrCb);
 		//人脸干扰大
 //		Imgproc.cvtColor(inputMat, inputMat, Imgproc.COLOR_BGR2HLS);
 		//效果好像不错啊

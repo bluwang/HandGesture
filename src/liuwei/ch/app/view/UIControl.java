@@ -103,6 +103,14 @@ public class UIControl {
 		V_MAX1.setValue((double) data[10]);
 		V_MAX2.setValue((double) data[11]);
 	}
+	
+	/**
+	 * Take photo
+	 */
+	@FXML
+	protected void takePhoto() {
+		detect.getHandContours();
+	}
 
 	/**
 	 * 开启或关闭摄像头
