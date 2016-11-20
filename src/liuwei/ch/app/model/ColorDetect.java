@@ -81,7 +81,7 @@ public class ColorDetect {
 //		Core.bitwise_or(mat1, mat2, inputMat);
 		
 //		Imgproc.threshold(inputMat, inputMat, 100, 255, Imgproc.THRESH_BINARY);
-		Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2, 2));
+		Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 3));
 		Imgproc.dilate(inputMat, inputMat, element, new Point(-1, -1), 5);
 		Imgproc.erode(inputMat, inputMat, element, new Point(-1, -1), 5);
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();   

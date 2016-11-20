@@ -46,7 +46,9 @@ public class Detect {
 	private VideoCapture capture;
 	private Image currentImage;
 	private MatOfPoint maxContour;
-	private Rect handRect;
+	private Rect handPosition;
+	private Rect facePosition;
+	private Rect matchPosition;
 	private List<Rect> faceRects;
 	private List<Rect> motionRects;
 	private List<Rect> colorRects;
@@ -71,6 +73,10 @@ public class Detect {
 		colorDetect = new ColorDetect();
 		geature = new Geature();
 		match = new Match();
+		
+		handPosition = new Rect();
+		facePosition = new Rect();
+		matchPosition = new Rect();
 
 		faceRects = new ArrayList<Rect>();
 		motionRects = new ArrayList<Rect>();
@@ -109,22 +115,41 @@ public class Detect {
 							currentFrame.copyTo(frame);
 							faceRects = faceDetect.detect(frame);
 							if (faceRects.size() > 0) {
+								Rect maxRect = new Rect();
 								for (int i = 0; i < faceRects.size() ; i++) {
-									if (faceRects.get(i).area() > 4000) {
-										Core.rectangle(currentFrame, faceRects.get(i).tl(), faceRects.get(i).br(), new Scalar(255, 0, 0), 3);
+									if (faceRects.get(i).area() > 10000) {
+//										Core.rectangle(currentFrame, faceRects.get(i).tl(), faceRects.get(i).br(), new Scalar(255, 0, 0), 3);
+										if (i == 0) {
+											maxRect = faceRects.get(i);
+											facePosition = maxRect;
+										}
+										else {
+											if (faceRects.get(i).area() > maxRect.area()) {
+												maxRect = faceRects.get(i);
+												facePosition = maxRect;
+											}
+										}
 									}
 								}
+								Core.rectangle(currentFrame, facePosition.tl(), facePosition.br(), new Scalar(255, 0, 0), 3);
+							}
+							else {
+								Core.rectangle(currentFrame, facePosition.tl(), facePosition.br(), new Scalar(255, 0, 0), 3);
 							}
 							
 							//运动检测
 							currentFrame.copyTo(frame);
-							motionDetect.setDetectMethod("MOG");
+//							motionDetect.setDetectMethod("MOG");
+							motionDetect.setDetectMethod("MyBS");
 							motionContours = motionDetect.detect(frame);
+							
+							motionRects.clear();
 							if (motionContours.size() > 0) {
 								Rect rect = new Rect();
 								for (int i = 0; i < motionContours.size() ; i++) {
 									rect = Imgproc.boundingRect(motionContours.get(i));
-									if (rect.area() > 3000) {
+									if (rect.area() > 10000) {
+										motionRects.add(rect);
 										Core.rectangle(currentFrame, rect.tl(), rect.br(), new Scalar(0, 255, 0), 3);
 									}
 								}
@@ -137,7 +162,7 @@ public class Detect {
 								Rect rect = new Rect();
 								for (int i = 0; i < colorContours.size() ; i++) {
 									rect = Imgproc.boundingRect(colorContours.get(i));
-									if (rect.area() > 3000) {
+									if (rect.area() > 10000) {
 										Core.rectangle(currentFrame, rect.tl(), rect.br(), new Scalar(0, 0, 255), 3);
 									}
 								}
@@ -146,7 +171,8 @@ public class Detect {
 //							MyTool.drawRect(currentFrame, motionContours);
 							
 							//图像匹配
-							match.pictureMatch(currentFrame, 3);
+							matchPosition = match.pictureMatch(currentFrame, 3);
+							Core.rectangle(currentFrame, matchPosition.tl(), matchPosition.br(), new Scalar(255, 255, 255), 3);
 							
 							showResult();
 							mergeContours();
@@ -225,9 +251,51 @@ public class Detect {
 	 * Processing contours of face, motion and color to a merge contours
 	 */
 	private void mergeContours() {
-		
+		// Use match rectangle act as breakthrough point
+		// If match rectangle contain face rectangle or be contained by face rectangle, no hand
+		if (isContain(facePosition, matchPosition) > 0.8) {
+			System.out.println("NO HAND");
+		}
+		else {
+			if (motionRects.size() > 0) {
+				int maxIndex = 0;
+				float maxArea = 0;
+				for (int i = 0; i < motionRects.size(); i++) {
+					if (isContain(facePosition, motionRects.get(i)) > maxArea) {
+						maxIndex = i;
+					}
+				}
+				
+				System.out.println("HAND");
+				Rect rect = motionRects.get(maxIndex);
+				Core.rectangle(currentFrame, rect.tl(), rect.br(), new Scalar(0, 255, 255), 4);
+			}
+		}
 	}
 	
+	/**
+	 * 判断两个矩形是否相互包含（当交叉区域达到一定比例时判断为包含）
+	 * @param facePosition2
+	 * @param matchPosition2
+	 * @return
+	 */
+	private float isContain(Rect rect1, Rect rect2) {
+		int top_x = rect1.x >= rect2.x ? rect1.x : rect2.x;
+		int top_y = rect1.y >= rect2.y ? rect1.y : rect2.y;
+		int bottom_x = (rect1.x+rect1.width) <= (rect2.x+rect2.width) ? (rect1.x+rect1.width) : (rect2.x+rect2.width);
+		int bottom_y = (rect1.y+rect1.height) <= (rect2.y+rect2.height) ? (rect1.y+rect1.height) : (rect2.y+rect2.height);
+		
+		if (!(top_x > bottom_x || top_y > bottom_y)) {
+			float crossArea = (bottom_x-top_x) * (bottom_y-top_y);
+			System.out.println(crossArea/rect1.area());
+			if ((crossArea/rect1.area()) >= 0.5) {
+				return (float) (crossArea/rect1.area());
+			}
+		}
+		
+		return 0;
+	}
+
 	private boolean filterContours() {
 		if (colorContours.size() > 0) {
 			//取得最大面积的轮廓

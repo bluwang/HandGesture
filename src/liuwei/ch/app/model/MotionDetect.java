@@ -74,7 +74,7 @@ public class MotionDetect {
 	private void detect_MOG(Mat image) {
 		contours.clear();
 		MOG.apply(image, image);
-		Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2, 2));
+		Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 3));
 		Imgproc.dilate(image, image, element, new Point(-1, -1), 5);
 		Imgproc.erode(image, image, element, new Point(-1, -1), 5);
 		contours = MyTool.getContours(image);
@@ -98,6 +98,7 @@ public class MotionDetect {
 		}
 		else {
 			image.copyTo(current);
+
 			Imgproc.cvtColor(current, current, Imgproc.COLOR_BGR2GRAY);
 			Imgproc.GaussianBlur(current, current, new Size(21,21), 0);
 			
@@ -110,7 +111,9 @@ public class MotionDetect {
 			
 			contours = MyTool.getContours(foreground);
 			
-//			image.copyTo(previous);
+			image.copyTo(previous);
+			Imgproc.cvtColor(previous, previous, Imgproc.COLOR_BGR2GRAY);
+			Imgproc.GaussianBlur(previous, previous, new Size(21,21), 0);
 		}
 
 	

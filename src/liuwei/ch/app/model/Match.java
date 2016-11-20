@@ -4,6 +4,7 @@ import org.opencv.core.Core;
 import org.opencv.core.Core.MinMaxLocResult;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
+import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
@@ -15,14 +16,14 @@ public class Match {
 	private int height;
 	
 	public Match() {
-		String file = "D:\\Coding\\Java\\java\\HandGesture\\resources\\picture\\hand.png";
+		String file = "D:\\Coding\\Java\\java\\HandGesture\\resources\\picture\\hand5.png";
 		templ = new Mat();
 		templ = Highgui.imread(file, Highgui.CV_LOAD_IMAGE_COLOR);
 		width = templ.width();
 		height = templ.height();
 	}	
 
-	public void pictureMatch(Mat image, int matchMethod) {
+	public Rect pictureMatch(Mat image, int matchMethod) {
 		Mat result = new Mat();
 
 		switch (matchMethod) {
@@ -57,13 +58,17 @@ public class Match {
 		
 		Point matchLoc;
 		if (matchMethod == 1 || matchMethod == 2) {
+//			System.out.println(data.minVal + "--" + data.maxVal);
 			matchLoc = data.minLoc;
 		}
 		else {
+//			System.out.println(data.minVal + "--" + data.maxVal);
 			matchLoc = data.maxLoc;
 		}
 		
-		Core.rectangle(image, matchLoc, new Point(matchLoc.x+width, matchLoc.y+height), new Scalar(255, 255, 255), 3);
+//		Core.rectangle(image, matchLoc, new Point(matchLoc.x+width, matchLoc.y+height), new Scalar(255, 255, 255), 3);
+		
+		return new Rect(matchLoc, new Point(matchLoc.x+width, matchLoc.y+height));
 	}
 
 }
