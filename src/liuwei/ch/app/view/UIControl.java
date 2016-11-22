@@ -13,6 +13,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Slider;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.ImageView;
 import liuwei.ch.app.model.Detect;
@@ -28,6 +29,8 @@ public class UIControl {
 	private Button play;
 	@FXML
 	private ChoiceBox<String> sceneChoose;
+	@FXML
+	private TextField direction;
 	@FXML
 	private Slider H_MIN1;
 	@FXML
@@ -123,7 +126,7 @@ public class UIControl {
 			isPlay = false;
 		}
 		else {
-			detect.start(ImageView);
+			detect.start(ImageView, direction);
 			play.setText("STOP");
 			isPlay = true;
 		}

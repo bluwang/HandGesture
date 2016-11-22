@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.text.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
@@ -76,7 +77,14 @@
                   </AnchorPane>
                </content>
             </TitledPane>
-          <TitledPane animated="false" text="untitled 2" />
+          <TitledPane animated="false" text="untitled 2">
+               <content>
+                  <TextField fx:id="direction" alignment="CENTER" prefHeight="60.0" prefWidth="200.0" text="方向">
+                     <font>
+                        <Font size="53.0" />
+                     </font>
+                  </TextField>
+               </content></TitledPane>
         </panes>
       </Accordion>
    </right>

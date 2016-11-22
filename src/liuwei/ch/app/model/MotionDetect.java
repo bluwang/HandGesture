@@ -9,6 +9,7 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Size;
+import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.video.BackgroundSubtractorMOG;
 import org.opencv.video.BackgroundSubtractorMOG2;
@@ -50,9 +51,10 @@ public class MotionDetect {
 	/**
 	 * 对图像中的运动目标进行检测，获得其轮廓的矩形框
 	 * @param image 输入图像
+	 * @param haveHand 
 	 * @return 返回运动目标轮廓的矩形框
 	 */
-	public List<MatOfPoint> detect(Mat image) {
+	public List<MatOfPoint> detect(Mat image, boolean haveHand) {
 		switch (detectMethod) {
 		case "MOG":
 			detect_MOG(image);
@@ -63,7 +65,7 @@ public class MotionDetect {
 			break;
 
 		default:
-			detect_myBS(image);
+			detect_myBS(image, haveHand);
 			break;
 		}
 
@@ -72,7 +74,6 @@ public class MotionDetect {
 	}
 	
 	private void detect_MOG(Mat image) {
-		contours.clear();
 		MOG.apply(image, image);
 		Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 3));
 		Imgproc.dilate(image, image, element, new Point(-1, -1), 5);
@@ -81,7 +82,6 @@ public class MotionDetect {
 	}
 
 	private void detect_MOG2(Mat image) {
-		contours.clear();
 		MOG2.apply(image, image);
 		Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2, 2));
 		Imgproc.dilate(image, image, element, new Point(-1, -1), 5);
@@ -89,7 +89,7 @@ public class MotionDetect {
 		contours = MyTool.getContours(image);
 	}
 	
-	private void detect_myBS(Mat image) {
+	private void detect_myBS(Mat image, boolean haveHand) {
 		if (previous == null) {
 			previous = new Mat();
 			image.copyTo(previous);
@@ -111,12 +111,12 @@ public class MotionDetect {
 			
 			contours = MyTool.getContours(foreground);
 			
-			image.copyTo(previous);
-			Imgproc.cvtColor(previous, previous, Imgproc.COLOR_BGR2GRAY);
-			Imgproc.GaussianBlur(previous, previous, new Size(21,21), 0);
+			if (!haveHand) {
+				image.copyTo(previous);
+				Imgproc.cvtColor(previous, previous, Imgproc.COLOR_BGR2GRAY);
+				Imgproc.GaussianBlur(previous, previous, new Size(21,21), 0);
+			}
 		}
-
-	
 	}
 	
 }

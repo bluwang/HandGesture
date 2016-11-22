@@ -16,7 +16,7 @@ public class Match {
 	private int height;
 	
 	public Match() {
-		String file = "D:\\Coding\\Java\\java\\HandGesture\\resources\\picture\\hand5.png";
+		String file = "D:\\Coding\\Java\\java\\HandGesture\\resources\\picture\\hand.png";
 		templ = new Mat();
 		templ = Highgui.imread(file, Highgui.CV_LOAD_IMAGE_COLOR);
 		width = templ.width();
@@ -57,13 +57,16 @@ public class Match {
 		MinMaxLocResult data = Core.minMaxLoc(result, new Mat());
 		
 		Point matchLoc;
+		float value;
 		if (matchMethod == 1 || matchMethod == 2) {
 //			System.out.println(data.minVal + "--" + data.maxVal);
 			matchLoc = data.minLoc;
+			value = (float) data.minVal;
 		}
 		else {
-//			System.out.println(data.minVal + "--" + data.maxVal);
+//			System.out.println(data.maxVal);
 			matchLoc = data.maxLoc;
+			value = (float) data.maxVal;
 		}
 		
 //		Core.rectangle(image, matchLoc, new Point(matchLoc.x+width, matchLoc.y+height), new Scalar(255, 255, 255), 3);

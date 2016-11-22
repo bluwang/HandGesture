@@ -3,7 +3,6 @@ package liuwei.ch.app.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.omg.PortableServer.POAHelper;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -20,13 +19,12 @@ import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 
-import com.sun.jna.Library;
-import com.sun.jna.Native;
+import com.sun.javafx.scene.traversal.Direction;
 
 import javafx.application.Platform;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.GestureEvent;
 import liuwei.ch.app.util.MyTool;
 
 /**
@@ -46,11 +44,12 @@ public class Detect {
 	private VideoCapture capture;
 	private Image currentImage;
 	private MatOfPoint maxContour;
-	private Rect handPosition;
+	private MatOfPoint handCoutour;
 	private Rect facePosition;
 	private Rect matchPosition;
 	private List<Rect> faceRects;
-	private List<Rect> motionRects;
+//	private List<Rect> motionRects;
+	private MotionRects motionRects;
 	private List<Rect> colorRects;
 	private List<MatOfPoint> faceContours;
 	private List<MatOfPoint> motionContours;
@@ -59,8 +58,11 @@ public class Detect {
 
 	private boolean cameraActive;
 	private boolean isDetect;
+	private boolean haveHand;
+	private boolean openBrowser;
 	private int width = 400;
 	private int height = 400;
+	private int direction;
 	// Set video device
 	private static int videodevice = 0;
 	
@@ -74,12 +76,13 @@ public class Detect {
 		geature = new Geature();
 		match = new Match();
 		
-		handPosition = new Rect();
+		handCoutour = new MatOfPoint();
 		facePosition = new Rect();
 		matchPosition = new Rect();
 
 		faceRects = new ArrayList<Rect>();
-		motionRects = new ArrayList<Rect>();
+//		motionRects = new ArrayList<Rect>();
+		motionRects = new MotionRects();
 		colorRects = new ArrayList<Rect>();
 
 		faceContours = new ArrayList<MatOfPoint>();
@@ -91,13 +94,16 @@ public class Detect {
 
 		cameraActive = false;
 		isDetect = false;
+		haveHand = false;
+		openBrowser = false;
 	}
 	
 	/**
 	 * 进行检测
 	 * @param imageView JavaFX的图像显示控件
+	 * @param direction2 
 	 */
-	public void start(ImageView imageView) {
+	public void start(ImageView imageView, TextField direction2) {
 		try {
 			if (this.capture.isOpened() && !cameraActive) {
 				cameraActive = true;
@@ -140,8 +146,9 @@ public class Detect {
 							//运动检测
 							currentFrame.copyTo(frame);
 //							motionDetect.setDetectMethod("MOG");
+//							motionDetect.setDetectMethod("MOG2");
 							motionDetect.setDetectMethod("MyBS");
-							motionContours = motionDetect.detect(frame);
+							motionContours = motionDetect.detect(frame, true);
 							
 							motionRects.clear();
 							if (motionContours.size() > 0) {
@@ -149,8 +156,8 @@ public class Detect {
 								for (int i = 0; i < motionContours.size() ; i++) {
 									rect = Imgproc.boundingRect(motionContours.get(i));
 									if (rect.area() > 10000) {
-										motionRects.add(rect);
-										Core.rectangle(currentFrame, rect.tl(), rect.br(), new Scalar(0, 255, 0), 3);
+										motionRects.add(rect, i);
+//										Core.rectangle(currentFrame, rect.tl(), rect.br(), new Scalar(0, 255, 0), 3);
 									}
 								}
 							}
@@ -163,7 +170,7 @@ public class Detect {
 								for (int i = 0; i < colorContours.size() ; i++) {
 									rect = Imgproc.boundingRect(colorContours.get(i));
 									if (rect.area() > 10000) {
-										Core.rectangle(currentFrame, rect.tl(), rect.br(), new Scalar(0, 0, 255), 3);
+//										Core.rectangle(currentFrame, rect.tl(), rect.br(), new Scalar(0, 0, 255), 3);
 									}
 								}
 							}
@@ -172,10 +179,41 @@ public class Detect {
 							
 							//图像匹配
 							matchPosition = match.pictureMatch(currentFrame, 3);
-							Core.rectangle(currentFrame, matchPosition.tl(), matchPosition.br(), new Scalar(255, 255, 255), 3);
+//							Core.rectangle(currentFrame, matchPosition.tl(), matchPosition.br(), new Scalar(255, 255, 255), 3);
 							
-							showResult();
-							mergeContours();
+//							showResult();
+							handCoutour = mergeContours();
+							
+							if (handCoutour != null) {
+								if (!openBrowser) {
+									openBrowser = true;
+									
+									Windows.openBrowser();
+								}
+//								drawContours(currentFrame, handCoutour);
+								
+								//Draw the center point of the max contours
+								Moments center = Imgproc.moments(handCoutour);
+								int x = (int)(center.get_m10()/center.get_m00());
+								int y = (int)(center.get_m01()/center.get_m00());
+//								Core.circle(currentFrame, new Point(x, y), 7, new Scalar(255, 0, 125), 5);
+								direction = geature.detect(new Point(x, y), currentFrame);
+								
+								switch (direction) {
+								case 1:
+									Core.putText(currentFrame, "RIGHT", new Point(0, 0), Core.FONT_ITALIC, 1.0,new Scalar(0, 0, 255), 5);
+									direction2.setText("右移");
+									break;
+
+								case 2:
+									Core.putText(currentFrame, "LEFT", new Point(0, 0), Core.FONT_ITALIC, 1.0,new Scalar(0, 0, 255), 5);
+									direction2.setText("左移");
+									break;
+
+								default:
+									break;
+								}
+							}
 //							
 //							if (isDetect) {
 //								currentFrame = currentFrame.submat(handRect).clone();
@@ -187,16 +225,12 @@ public class Detect {
 //							drawContours(currentFrame);
 
 //							if (filterContours()) {
-//								//Draw the center point of the max contours
-//								Moments center = Imgproc.moments(maxContour);
-//								int x = (int)(center.get_m10()/center.get_m00());
-//								int y = (int)(center.get_m01()/center.get_m00());
-//								Core.circle(currentFrame, new Point(x, y), 7, new Scalar(255, 125, 125));
-//								geature.detect(new Point(x, y));
 //								
 //								drawContours(frame, colorContours);
 //							}
 
+							Imgproc.cvtColor(currentFrame, currentFrame, Imgproc.COLOR_BGR2GRAY);
+							Imgproc.threshold(currentFrame, currentFrame, 125, 255, Imgproc.THRESH_BINARY);
 							Core.flip(currentFrame, currentFrame, 1);
 							Imgproc.resize(currentFrame, currentFrame, new Size(350, 300));
 							currentImage = MyTool.MatToImage(currentFrame);
@@ -250,27 +284,33 @@ public class Detect {
 	/**
 	 * Processing contours of face, motion and color to a merge contours
 	 */
-	private void mergeContours() {
+	private MatOfPoint mergeContours() {
 		// Use match rectangle act as breakthrough point
 		// If match rectangle contain face rectangle or be contained by face rectangle, no hand
 		if (isContain(facePosition, matchPosition) > 0.8) {
+			haveHand = false;
 			System.out.println("NO HAND");
 		}
-		else {
-			if (motionRects.size() > 0) {
-				int maxIndex = 0;
-				float maxArea = 0;
-				for (int i = 0; i < motionRects.size(); i++) {
-					if (isContain(facePosition, motionRects.get(i)) > maxArea) {
-						maxIndex = i;
-					}
+		else if (motionRects.size() > 0) {
+			int maxIndex = -1;
+			float maxArea = 0;
+			for (int i = 0; i < motionRects.size(); i++) {
+				if (isContain(motionRects.getRect(i), matchPosition) > maxArea) {
+					maxIndex = i;
 				}
-				
-				System.out.println("HAND");
-				Rect rect = motionRects.get(maxIndex);
+			}
+			
+			if (maxIndex != -1) {
+//				System.out.println("HAND");
+				haveHand = true;
+				Rect rect = motionRects.getRect(maxIndex);
 				Core.rectangle(currentFrame, rect.tl(), rect.br(), new Scalar(0, 255, 255), 4);
+				
+				return motionContours.get(motionRects.getIndex(maxIndex));
 			}
 		}
+		
+		return null;
 	}
 	
 	/**
@@ -287,7 +327,7 @@ public class Detect {
 		
 		if (!(top_x > bottom_x || top_y > bottom_y)) {
 			float crossArea = (bottom_x-top_x) * (bottom_y-top_y);
-			System.out.println(crossArea/rect1.area());
+//			System.out.println(crossArea/rect1.area());
 			if ((crossArea/rect1.area()) >= 0.5) {
 				return (float) (crossArea/rect1.area());
 			}
@@ -319,7 +359,7 @@ public class Detect {
 	 */
 	private void showResult() {
 //		MyTool.drawContours(currentFrame, faceRects, "red");
-		MyTool.drawContours(currentFrame, motionRects, "green");
+//		MyTool.drawContours(currentFrame, motionRects, "green");
 //		MyTool.drawContours(currentFrame, colorRects, "blue");
 		
 		//将颜色匹配和运动检测到的轮廓进行融合
@@ -370,30 +410,30 @@ public class Detect {
 		}
 	}
 	
-	private void drawContours(Mat frame, List<MatOfPoint> contours) {
+private void drawContours(Mat frame, MatOfPoint contour) {
 		//Draw all contours
-		Imgproc.drawContours(currentFrame, colorContours, -1, new Scalar(0, 255, 255, 255), 3);
+//		Imgproc.drawContours(currentFrame, colorContours, -1, new Scalar(0, 255, 255, 255), 3);
 		
 		//Draw the max contours
-		colorContours.clear();
-		colorContours.add(maxContour);
-		Imgproc.drawContours(frame, colorContours, -1, new Scalar(0, 0, 255, 255), 3);
+//		colorContours.clear();
+//		colorContours.add(maxContour);
+//		Imgproc.drawContours(frame, colorContours, -1, new Scalar(0, 0, 255, 255), 3);
 		
 		//Smoothing the contours
 		MatOfPoint2f pointMat = new MatOfPoint2f();
 		//这个起平滑曲线的作用，很强
-		Imgproc.approxPolyDP(new MatOfPoint2f(maxContour.toArray()), pointMat, 18, true);
-		pointMat.convertTo(maxContour, CvType.CV_32S);
+		Imgproc.approxPolyDP(new MatOfPoint2f(contour.toArray()), pointMat, 18, true);
+		pointMat.convertTo(contour, CvType.CV_32S);
 		
 		//Draw the smooth contours
-		colorContours.clear();
-		colorContours.add(maxContour);
-		Imgproc.drawContours(frame, colorContours, -1, new Scalar(0, 255, 0, 255), 3);
+//		colorContours.clear();
+//		colorContours.add(contour);
+//		Imgproc.drawContours(frame, colorContours, -1, new Scalar(0, 255, 0, 255), 3);
 		
 		//Find hull of the max contours
 		MatOfInt hull = new MatOfInt();
-		Imgproc.convexHull(maxContour, hull, true);
-		Imgproc.convexHull(maxContour, hull, false);
+		Imgproc.convexHull(contour, hull, true);
+		Imgproc.convexHull(contour, hull, false);
 		
 		// Convert MatOfInt to MatOfPoint for drawing convex hull
 		// Loop over all contours
@@ -403,7 +443,7 @@ public class Detect {
 		// Loop over all points that need to be hulled in current contour
 		for(int i=0; i < hull.rows(); i++){
 			int index = (int)hull.get(i, 0)[0];
-			points[i] = new Point(maxContour.get(index, 0)[0], maxContour.get(index, 0)[1]);
+			points[i] = new Point(contour.get(index, 0)[0], contour.get(index, 0)[1]);
 		}
 		
 		hullpoints.add(points);
@@ -421,10 +461,10 @@ public class Detect {
 		
 		if (hull.toArray().length > 3) {
 			MatOfInt4 convexDefect = new MatOfInt4();
-			Imgproc.convexityDefects(maxContour, hull, convexDefect);
+			Imgproc.convexityDefects(contour, hull, convexDefect);
 			
 			List<Integer> cdList = convexDefect.toList();
-			Point[] datas = maxContour.toArray();
+			Point[] datas = contour.toArray();
 			
 			for (int i = 0; i < cdList.size(); i += 4) {
 				Point ptStart = datas[cdList.get(i)];
